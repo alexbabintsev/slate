@@ -4,10 +4,14 @@ Optional shell wrapper to control the Slate Chrome extension from the command li
 
 ## Install
 
-1. Open `chrome://extensions`, enable **Developer mode**, copy your Slate extension ID.
+1. Find your Slate extension ID:
+   - **Installed from the Chrome Web Store:** `keiaafjcddiababjlpgbfciohdebiggm`
+   - **Loaded unpacked (development):** open `chrome://extensions`, enable
+     **Developer mode**, and copy the ID shown under Slate (it differs from the
+     Web Store ID).
 2. Set it in your shell rc:
    ```bash
-   export SLATE_EXT_ID="abcdefghijklmnopqrstuvwxyzabcdef"
+   export SLATE_EXT_ID="keiaafjcddiababjlpgbfciohdebiggm"
    ```
 3. Symlink `slate` onto your `PATH`:
    ```bash
