@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# Slate CLI - control Slate Chrome extension from the command line.
+#
+# Setup:
+#   1. Get your extension ID from chrome://extensions (developer mode on).
+#   2. Set SLATE_EXT_ID in your shell rc, e.g.:
+#        export SLATE_EXT_ID="abcdefghijklmnopqrstuvwxyzabcdef"
+#   3. Symlink this script onto your PATH:
+#        ln -s "$PWD/cli/slate" /usr/local/bin/slate
+#
+# Usage:
+#   slate open "Work"
+#   slate close "Work"
+#   slate list
+
+set -euo pipefail
+
+if [[ -z "${SLATE_EXT_ID:-}" ]]; then
+  echo "error: SLATE_EXT_ID is not set" >&2
+  echo "  export SLATE_EXT_ID=\"<your-extension-id-from-chrome://extensions>\"" >&2
+  exit 1
+fi
+
+if [[ $# -lt 1 ]]; then
+  echo "usage: slate <open|close|list> [project-name]" >&2
+  exit 1
+fi
+
+ACTION="$1"
+PROJECT="${2:-}"
+
+case "$ACTION" in
+  open|close|list) ;;
+  *) echo "error: unknown action '$ACTION' (expected: open, close, list)" >&2; exit 1 ;;
+esac
+
+# URL-encode project name (only handles common cases - spaces, &, =).
+encode() {
+  local s="$1"
+  s="${s//&/%26}"
+  s="${s//=/%3D}"
+  s="${s// /%20}"
+  printf '%s' "$s"
+}
+
+URL="chrome-extension://${SLATE_EXT_ID}/src/cli/cli.html?action=${ACTION}"
+if [[ -n "$PROJECT" ]]; then
+  URL="${URL}&project=$(encode "$PROJECT")"
+fi
+
+# Locate Chrome.
+find_chrome() {
+  local candidates=(
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    "/usr/bin/google-chrome"
+    "/usr/bin/google-chrome-stable"
+    "/usr/bin/chromium"
+    "/usr/bin/chromium-browser"
+    "/snap/bin/chromium"
+  )
+  for c in "${candidates[@]}"; do
+    [[ -x "$c" ]] && { echo "$c"; return; }
+  done
+  command -v google-chrome 2>/dev/null && return
+  command -v chromium 2>/dev/null && return
+  return 1
+}
+
+CHROME="$(find_chrome)" || { echo "error: Chrome/Chromium not found" >&2; exit 1; }
+
+# Use --new-window so action runs without disturbing existing windows.
+# cli.html closes itself for open/close; for list it stays visible until user closes it.
+exec "$CHROME" --new-window "$URL" >/dev/null 2>&1

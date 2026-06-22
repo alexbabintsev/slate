@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects</title>
+  <link rel="stylesheet" href="manager.css">
+</head>
+<body>
+  <div id="app">
+
+    <header id="header">
+      <div id="header-title">
+        <span>Projects</span>
+      </div>
+      <div id="header-actions">
+        <button id="btn-import" title="Import projects"></button>
+        <button id="btn-export" title="Export projects"></button>
+      </div>
+    </header>
+
+    <!-- Assign banner (shown only when current window has no project) -->
+    <div id="assign-banner" style="display:none">
+      <span id="assign-banner-text">This window has no project</span>
+      <button id="btn-assign">Create project…</button>
+    </div>
+
+    <div id="new-project-wrap">
+      <button id="btn-new">
+        <span id="btn-new-icon"></span>
+        New Project
+      </button>
+    </div>
+
+    <div id="project-list"></div>
+
+    <footer id="app-footer">
+      <span id="footer-version"></span>
+      <span id="footer-author"></span>
+    </footer>
+
+    <!-- ── Icon picker dialog ────────────────────────────── -->
+    <div id="icon-dialog" class="dialog-overlay" style="display:none">
+      <div class="dialog">
+        <div class="dialog-header">
+          <span class="dialog-title">Choose icon</span>
+          <button class="dialog-close" id="icon-dialog-close"></button>
+        </div>
+
+        <div id="project-color-picker">
+          <span class="color-picker-label">Color</span>
+          <div id="project-color-swatches"></div>
+        </div>
+
+        <div id="icon-tabs" class="icon-tabs">
+          <button class="icon-tab active" data-tab="lucide">Icons</button>
+          <button class="icon-tab" data-tab="upload">Upload</button>
+          <button id="btn-clear-icon" type="button">Clear icon</button>
+        </div>
+
+        <div id="icon-tab-lucide" class="icon-tab-panel">
+          <div id="icon-search-wrap">
+            <input id="icon-search" type="text" placeholder="Search icons…" autocomplete="off">
+          </div>
+          <div id="lucide-grid" class="lucide-grid"></div>
+        </div>
+
+        <div id="icon-tab-upload" class="icon-tab-panel" style="display:none">
+          <div id="upload-area">
+            <span id="upload-area-icon"></span>
+            <span class="upload-label">Click or drag an image</span>
+            <span class="upload-hint">PNG, JPG, SVG, WebP - max 512 KB</span>
+            <input type="file" id="icon-upload-input" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display:none">
+          </div>
+          <div id="upload-preview" style="display:none">
+            <img id="upload-preview-img" alt="preview">
+            <button id="upload-use" class="btn-confirm">Use this image</button>
+            <button id="upload-clear" class="btn-ghost">Choose different</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Delete confirm dialog ─────────────────────────── -->
+    <div id="delete-dialog" class="dialog-overlay" style="display:none">
+      <div class="dialog dialog-sm">
+        <div class="dialog-header">
+          <span class="dialog-title">Delete project?</span>
+        </div>
+        <p id="delete-message" class="dialog-body"></p>
+        <div class="dialog-footer">
+          <button id="delete-cancel" class="btn-cancel">Cancel</button>
+          <button id="delete-confirm" class="btn-danger">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Assign dialog ──────────────────────────────────── -->
+    <div id="assign-dialog" class="dialog-overlay" style="display:none">
+      <div class="dialog dialog-sm">
+        <div class="dialog-header">
+          <span class="dialog-title">Assign window to project</span>
+          <button class="dialog-close" id="assign-dialog-close"></button>
+        </div>
+        <p class="dialog-body">Choose which project this window belongs to:</p>
+        <div id="assign-project-list" class="assign-list"></div>
+      </div>
+    </div>
+
+    <input type="file" id="import-input" accept=".json" style="display:none">
+
+    <!-- ── Generic prompt dialog ─────────────────────────── -->
+    <div id="prompt-dialog" class="dialog-overlay" style="display:none">
+      <div class="dialog dialog-sm">
+        <div class="dialog-header">
+          <span class="dialog-title" id="prompt-title">Project name</span>
+        </div>
+        <div class="dialog-body">
+          <input id="prompt-input" type="text" autocomplete="off" spellcheck="false"
+                 style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);font:inherit;outline:none">
+        </div>
+        <div class="dialog-footer">
+          <button id="prompt-cancel" class="btn-cancel">Cancel</button>
+          <button id="prompt-ok" class="btn-confirm">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Generic alert dialog ──────────────────────────── -->
+    <div id="alert-dialog" class="dialog-overlay" style="display:none">
+      <div class="dialog dialog-sm">
+        <div class="dialog-header">
+          <span class="dialog-title" id="alert-title">Notice</span>
+        </div>
+        <p id="alert-message" class="dialog-body"></p>
+        <div class="dialog-footer">
+          <button id="alert-ok" class="btn-confirm">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="manager.js"></script>
+</body>
+</html>

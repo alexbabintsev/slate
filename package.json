@@ -1,0 +1,23 @@
+{
+  "name": "chrome-projects",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "package": "npm run build && node scripts/package.mjs",
+    "version": "node scripts/sync-manifest-version.mjs"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.5"
+  },
+  "dependencies": {
+    "lucide": "^1.11.0"
+  }
+}

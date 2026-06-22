@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slate</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="app">
+    <header id="header">
+      <div id="current-project">
+        <span id="current-icon"></span>
+        <div id="current-info">
+          <span id="current-label">Current project</span>
+          <span id="current-name">No Project</span>
+          <span id="current-tabs"></span>
+        </div>
+      </div>
+      <button id="btn-create-from-window" title="Create project from this window" style="display:none"></button>
+    </header>
+
+    <div id="divider"></div>
+
+    <div id="project-list">
+      <div id="projects-container"></div>
+    </div>
+
+    <div id="footer">
+      <button id="btn-new-project">
+        <span id="btn-new-icon"></span>
+        New Project
+      </button>
+      <button id="open-manager" title="Manage projects"></button>
+    </div>
+
+    <div id="prompt-dialog" class="prompt-overlay" style="display:none">
+      <div class="prompt-box">
+        <div id="prompt-title" class="prompt-title">Project name</div>
+        <input id="prompt-input" type="text" autocomplete="off" spellcheck="false">
+        <div class="prompt-actions">
+          <button id="prompt-cancel" class="prompt-btn">Cancel</button>
+          <button id="prompt-ok" class="prompt-btn primary">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

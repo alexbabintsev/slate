@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "Slate - Window per Project",
+  "version": "1.0.0",
+  "description": "Tab manager that gives every project its own Chrome window with saved tabs, groups, and pinned state. Switch contexts instantly.",
+  "author": "Alex Babintsev",
+  "minimum_chrome_version": "119",
+
+  "permissions": [
+    "tabs",
+    "tabGroups",
+    "storage",
+    "sidePanel"
+  ],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["src/cli/cli.html", "src/cli/cli.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+  "side_panel": {
+    "default_path": "src/manager/manager.html"
+  },
+
+  "background": {
+    "service_worker": "dist/service-worker.js",
+    "type": "module"
+  },
+
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "32": "assets/icons/icon32.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    }
+  },
+
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "32": "assets/icons/icon32.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  }
+}
