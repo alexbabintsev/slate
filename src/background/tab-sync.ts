@@ -11,6 +11,11 @@ const closingWindows = new Set<number>();
 
 export function markWindowRestoring(windowId: number): void {
   restoringWindows.add(windowId);
+  // Window ids are reused by Chrome - drop anything cached under this id from a
+  // previous window so a restore never inherits stale groups or tabs.
+  windowTabCache.delete(windowId);
+  windowActiveIndex.delete(windowId);
+  windowGroupCache.delete(windowId);
 }
 
 export function unmarkWindowRestoring(windowId: number): void {
@@ -34,7 +39,9 @@ function buildTabStates(tabs: chrome.tabs.Tab[]): TabState[] {
 async function buildTabGroupStates(windowId: number): Promise<TabGroupState[]> {
   try {
     const groups = await chrome.tabGroups.query({ windowId });
-    if (groups.length > 0) windowGroupCache.set(windowId, groups);
+    // Authoritative snapshot - replace the cache instead of merging, so groups
+    // from a previous restore of this window id cannot linger.
+    windowGroupCache.set(windowId, groups);
   } catch {
     // window already closed - use cache
   }
@@ -46,16 +53,40 @@ async function buildTabGroupStates(windowId: number): Promise<TabGroupState[]> {
   }));
 }
 
+// Chrome's group ids are volatile - they change every time a window is
+// restored. Persisting them raw made each open append a fresh set of groups
+// alongside the stale ones. Renumber to dense indices keyed off the live ids
+// actually present on the tabs being saved, and drop groups no tab references.
+export function normalizeGroups(
+  tabStates: TabState[],
+  groups: TabGroupState[],
+): { tabs: TabState[]; tabGroups: TabGroupState[] } {
+  const liveIds = new Set(
+    tabStates.map(t => t.groupId).filter((id): id is number => id !== undefined),
+  );
+  const ordered = groups.filter(g => liveIds.has(g.id));
+  const indexById = new Map(ordered.map((g, i) => [g.id, i]));
+
+  return {
+    tabs: tabStates.map(t => {
+      const idx = t.groupId !== undefined ? indexById.get(t.groupId) : undefined;
+      return idx === undefined ? { ...t, groupId: undefined } : { ...t, groupId: idx };
+    }),
+    tabGroups: ordered.map((g, i) => ({ ...g, id: i })),
+  };
+}
+
 async function persist(projectId: string, tabs: chrome.tabs.Tab[], activeIndex: number, windowId: number, groupsOverride?: TabGroupState[]): Promise<void> {
   const storage = getStorage();
   const project = await storage.getProject(projectId);
   if (!project) return;
 
-  const tabStates = buildTabStates(tabs);
+  const rawTabStates = buildTabStates(tabs);
 
-  if (tabStates.length === 0 && project.tabs.length > 0) return;
+  if (rawTabStates.length === 0 && project.tabs.length > 0) return;
 
-  const tabGroups = groupsOverride ?? await buildTabGroupStates(windowId);
+  const rawGroups = groupsOverride ?? await buildTabGroupStates(windowId);
+  const { tabs: tabStates, tabGroups } = normalizeGroups(rawTabStates, rawGroups);
   await storage.saveProject({ ...project, tabs: tabStates, tabGroups, activeTabIndex: activeIndex });
 }
 
@@ -158,19 +189,28 @@ export function registerTabListeners(): void {
   });
 
   // Keep group cache fresh; save on create/update
-  chrome.tabGroups.onCreated.addListener(group => {
+  const cacheGroup = (group: chrome.tabGroups.TabGroup): void => {
     const existing = windowGroupCache.get(group.windowId) ?? [];
     windowGroupCache.set(group.windowId, [...existing.filter(g => g.id !== group.id), group]);
+  };
+
+  chrome.tabGroups.onCreated.addListener(group => {
+    // During a restore these are the groups we are creating ourselves; caching
+    // them is fine, but saving mid-restore would persist a partial window.
+    cacheGroup(group);
     scheduleSave(group.windowId, 0);
   });
   chrome.tabGroups.onUpdated.addListener(group => {
-    const existing = windowGroupCache.get(group.windowId) ?? [];
-    windowGroupCache.set(group.windowId, [...existing.filter(g => g.id !== group.id), group]);
+    cacheGroup(group);
     scheduleSave(group.windowId, 0);
   });
-  // onRemoved: do NOT evict from cache - window may be closing and we need
-  // the cached groups for saveFromCache. Cache is cleared in clearWindowCache.
-
+  chrome.tabGroups.onRemoved.addListener(group => {
+    // Only evict while the window is alive. If it is closing, saveFromCache
+    // still needs these entries.
+    if (closingWindows.has(group.windowId)) return;
+    const existing = windowGroupCache.get(group.windowId) ?? [];
+    windowGroupCache.set(group.windowId, existing.filter(g => g.id !== group.id));
+  });
   chrome.tabs.onRemoved.addListener(async (_, info) => {
     if (info.isWindowClosing) {
       closingWindows.add(info.windowId);

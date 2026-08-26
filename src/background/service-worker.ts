@@ -11,6 +11,7 @@ import { createProject } from '../models/project';
 import type { Message, MessageResponse } from '../models/messages';
 import { updateToolbarIcon } from './toolbar-icon';
 import { sanitizeImportedStore } from './import-sanitizer';
+import { isRestorableUrl, hasFileAccess } from './restorable-url';
 
 async function openProject(projectId: string): Promise<number> {
   const existingWindowId = await getWindowForProject(projectId);
@@ -27,8 +28,12 @@ async function openProject(projectId: string): Promise<number> {
   const regularTabs = project.tabs.filter(t => !t.pinned);
   const orderedTabs = [...pinnedTabs, ...regularTabs];
 
-  // Only tabs with valid URLs get created - track which saved tabs map to which win tab
-  const validTabs = orderedTabs.filter(t => t.url && !t.url.startsWith('chrome://'));
+  // Only tabs with URLs chrome.windows.create will accept get created - track
+  // which saved tabs map to which window tab. A single rejected URL (file://
+  // without local file access, chrome://, etc.) fails the whole create call,
+  // so these are dropped up front rather than losing the window entirely.
+  const fileAccess = await hasFileAccess();
+  const validTabs = orderedTabs.filter(t => t.url && isRestorableUrl(t.url, fileAccess));
   const urls = validTabs.length > 0 ? validTabs.map(t => t.url) : ['chrome://newtab/'];
 
   const win = await chrome.windows.create({ url: urls, focused: true });
