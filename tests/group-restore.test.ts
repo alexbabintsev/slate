@@ -35,15 +35,26 @@ describe('normalizeGroups', () => {
     expect(second).toEqual(first);
   });
 
-  it('drops groups no live tab references, so stale ones cannot accumulate', () => {
-    // windowGroupCache held groups from a previous restore of this window id.
-    const tabs = [tab('a', 900)];
-    const groups = [group(900, 'BLE'), group(12, 'BLE'), group(13, 'MLL')];
+  it('keeps a group even when the cached tabs do not reference it yet', () => {
+    // Chrome fires no tabs.onUpdated when a tab's groupId changes, so a save
+    // can see tabs that still look ungrouped. The group must survive: dropping
+    // it here is what silently wiped groups on close.
+    const tabs = [tab('a'), tab('b')];
+    const groups = [group(777, 'Shop')];
 
     const result = normalizeGroups(tabs, groups);
 
-    expect(result.tabGroups).toEqual([group(0, 'BLE')]);
-    expect(result.tabs[0].groupId).toBe(0);
+    expect(result.tabGroups).toEqual([group(0, 'Shop')]);
+  });
+
+  it('does not duplicate groups across repeated saves', () => {
+    // The 1.0.1 regression: each open appended a fresh set of groups. Ids are
+    // renumbered densely, so saving the same window twice is idempotent.
+    const once = normalizeGroups([tab('a', 900), tab('b', 901)], [group(900, 'BLE'), group(901, 'MLL')]);
+    const twice = normalizeGroups(once.tabs, once.tabGroups);
+
+    expect(twice).toEqual(once);
+    expect(twice.tabGroups).toHaveLength(2);
   });
 
   it('clears groupId on tabs whose group is gone', () => {

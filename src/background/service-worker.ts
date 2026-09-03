@@ -13,7 +13,7 @@ import { updateToolbarIcon } from './toolbar-icon';
 import { sanitizeImportedStore } from './import-sanitizer';
 import { isRestorableUrl, hasFileAccess } from './restorable-url';
 
-async function openProject(projectId: string): Promise<number> {
+export async function openProject(projectId: string): Promise<number> {
   const existingWindowId = await getWindowForProject(projectId);
   if (existingWindowId !== null) {
     await chrome.windows.update(existingWindowId, { focused: true });
@@ -38,52 +38,67 @@ async function openProject(projectId: string): Promise<number> {
 
   const win = await chrome.windows.create({ url: urls, focused: true });
   if (!win.id) throw new Error('Failed to create window');
+  const windowId = win.id;
 
-  markWindowRestoring(win.id);
+  markWindowRestoring(windowId);
   try {
-    if (win.tabs) {
-      // Pin the tabs that should be pinned
-      for (let i = 0; i < win.tabs.length; i++) {
-        if (validTabs[i]?.pinned) {
-          const tabId = win.tabs[i].id;
-          if (tabId) await chrome.tabs.update(tabId, { pinned: true });
-        }
-      }
+    // chrome.windows.create resolves before the window has settled: win.tabs can
+    // be short, out of order, or missing ids. Re-query and sort by index so the
+    // saved tabs line up with the real tabs one-to-one.
+    const createdTabs = (await chrome.tabs.query({ windowId })).sort((a, b) => a.index - b.index);
 
-      // Restore tab groups
-      const savedGroups = project.tabGroups ?? [];
-      for (const savedGroup of savedGroups) {
-        try {
-          const tabIds = win.tabs
-            .filter((_, i) => validTabs[i]?.groupId === savedGroup.id)
-            .map(t => t.id)
-            .filter((id): id is number => id !== undefined);
-
-          if (tabIds.length === 0) continue;
-
-          const newGroupId = await chrome.tabs.group({ tabIds });
-          await chrome.tabGroups.update(newGroupId, {
-            title: savedGroup.title,
-            color: savedGroup.color,
-            collapsed: savedGroup.collapsed,
-          });
-        } catch (e) {
-          console.warn('[Slate] failed to restore group', savedGroup.id, e);
-        }
-      }
-
-      // Activate the tab that was active when the project was last saved
-      const activeIndex = project.activeTabIndex ?? 0;
-      const targetTab = win.tabs.find(t => t.index === activeIndex) ?? win.tabs[0];
-      if (targetTab?.id) await chrome.tabs.update(targetTab.id, { active: true });
+    // Bind each saved tab to a concrete tab id NOW. Pinning below reorders the
+    // window (pinned tabs jump to the front), so any later positional lookup
+    // would match the wrong tabs.
+    const tabIdForSaved = new Map<number, number>();
+    for (let i = 0; i < validTabs.length && i < createdTabs.length; i++) {
+      const id = createdTabs[i].id;
+      if (id !== undefined) tabIdForSaved.set(i, id);
     }
 
-    await associateWindow(win.id, projectId);
+    // Pin the tabs that should be pinned
+    for (const [savedIndex, tabId] of tabIdForSaved) {
+      if (validTabs[savedIndex]?.pinned) {
+        await chrome.tabs.update(tabId, { pinned: true }).catch(() => {});
+      }
+    }
+
+    // Restore tab groups. Saved group ids are dense indices (see normalizeGroups),
+    // matched against the groupId recorded on each saved tab.
+    const savedGroups = project.tabGroups ?? [];
+    for (const savedGroup of savedGroups) {
+      try {
+        const tabIds = validTabs
+          .map((t, i) => (t.groupId === savedGroup.id ? tabIdForSaved.get(i) : undefined))
+          .filter((id): id is number => id !== undefined);
+
+        if (tabIds.length === 0) continue;
+
+        // windowId is required: without it Chrome infers the target window and
+        // can pull the tabs into whichever window is currently focused,
+        // scattering the project across two windows.
+        const newGroupId = await chrome.tabs.group({ tabIds, createProperties: { windowId } });
+        await chrome.tabGroups.update(newGroupId, {
+          title: savedGroup.title,
+          color: savedGroup.color,
+          collapsed: savedGroup.collapsed,
+        });
+      } catch (e) {
+        console.warn('[Slate] failed to restore group', savedGroup.id, e);
+      }
+    }
+
+    // Activate the tab that was active when the project was last saved.
+    const activeIndex = project.activeTabIndex ?? 0;
+    const targetTab = createdTabs[activeIndex] ?? createdTabs[0];
+    if (targetTab?.id) await chrome.tabs.update(targetTab.id, { active: true });
+
+    await associateWindow(windowId, projectId);
   } finally {
-    unmarkWindowRestoring(win.id);
+    unmarkWindowRestoring(windowId);
   }
 
-  return win.id;
+  return windowId;
 }
 
 async function closeProject(projectId: string): Promise<void> {
