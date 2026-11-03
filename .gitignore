@@ -30,6 +30,8 @@ temp/
 
 # Build output (run `npm run build` to regenerate)
 dist/
+src/popup/popup.js
+src/manager/manager.js
 
 # Generated assets (built from assets/lucide-icons.full.json)
 assets/lucide-icons.json
