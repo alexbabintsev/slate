@@ -214,5 +214,80 @@
   },
   "invalidImport": {
     "message": "Este archivo no es una exportación de Slate."
+  },
+  "welcomeTitle": {
+    "message": "Te damos la bienvenida a Slate"
+  },
+  "welcomeIntro": {
+    "message": "Una ventana de Chrome para cada proyecto. Tres pasos rápidos y listo"
+  },
+  "welcomePinTitle": {
+    "message": "Fija Slate en la barra de herramientas"
+  },
+  "welcomePinText": {
+    "message": "Chrome esconde las extensiones nuevas tras el icono de la pieza de puzle. Haz clic en él y luego en la chincheta junto a Slate para tener tus proyectos a un clic"
+  },
+  "welcomePinned": {
+    "message": "Fijado, todo listo"
+  },
+  "welcomeCreateTitle": {
+    "message": "Crea tu primer proyecto"
+  },
+  "welcomeCreateText": {
+    "message": "Ponle el nombre de algo en lo que trabajas. Slate abre una ventana nueva para él y guarda sus pestañas mientras trabajas"
+  },
+  "welcomeCreatePlaceholder": {
+    "message": "Nombre del proyecto, por ejemplo Trabajo"
+  },
+  "welcomeCreateButton": {
+    "message": "Crear y abrir"
+  },
+  "welcomeCreated": {
+    "message": "«$NAME$» está abierto en una ventana nueva",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "welcomeCreateFailed": {
+    "message": "No se pudo crear el proyecto. Inténtalo de nuevo desde el icono de Slate"
+  },
+  "welcomeExistingWindow": {
+    "message": "¿Ya tienes una ventana llena de pestañas para él? Abre Slate en esa ventana y pulsa la carpeta con el signo más para guardarla como proyecto"
+  },
+  "welcomeSwitchTitle": {
+    "message": "Cambia con un clic"
+  },
+  "welcomeSwitchText": {
+    "message": "Haz clic en el icono de Slate y elige un proyecto: Slate abre su ventana o la trae al frente"
+  },
+  "welcomeSwitchText2": {
+    "message": "La letra del icono indica a qué proyecto pertenece la ventana. Cierra la ventana de un proyecto cuando quieras: sus pestañas quedan guardadas"
+  },
+  "welcomeManagerText": {
+    "message": "Renombra, reordena y cambia el color de tus proyectos, o haz una copia de seguridad, en el panel lateral"
+  },
+  "welcomeManagerButton": {
+    "message": "Abrir el gestor"
+  },
+  "welcomeCliText": {
+    "message": "¿Prefieres la terminal? Abre y cierra proyectos con el comando opcional slate"
+  },
+  "welcomeCliLink": {
+    "message": "Cómo configurarlo"
+  },
+  "welcomePrivacy": {
+    "message": "Todo se queda en este navegador: sin cuenta, sin rastreo, sin servidores"
+  },
+  "welcomeSiteLink": {
+    "message": "Sitio web"
+  },
+  "welcomeSourceLink": {
+    "message": "Código fuente"
+  },
+  "welcomePrivacyLink": {
+    "message": "Política de privacidad"
   }
 }

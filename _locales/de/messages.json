@@ -214,5 +214,80 @@
   },
   "invalidImport": {
     "message": "Diese Datei ist kein Slate-Export."
+  },
+  "welcomeTitle": {
+    "message": "Willkommen bei Slate"
+  },
+  "welcomeIntro": {
+    "message": "Ein Chrome-Fenster für jedes Projekt. Drei kurze Schritte, und es kann losgehen"
+  },
+  "welcomePinTitle": {
+    "message": "Slate an die Symbolleiste anheften"
+  },
+  "welcomePinText": {
+    "message": "Chrome versteckt neue Erweiterungen hinter dem Puzzle-Symbol. Klicke darauf und dann auf die Nadel neben Slate, damit deine Projekte nur einen Klick entfernt sind"
+  },
+  "welcomePinned": {
+    "message": "Angeheftet, alles bereit"
+  },
+  "welcomeCreateTitle": {
+    "message": "Erstelle dein erstes Projekt"
+  },
+  "welcomeCreateText": {
+    "message": "Benenne es nach etwas, woran du arbeitest. Slate öffnet dafür ein neues Fenster und speichert die Tabs laufend"
+  },
+  "welcomeCreatePlaceholder": {
+    "message": "Projektname, zum Beispiel Arbeit"
+  },
+  "welcomeCreateButton": {
+    "message": "Erstellen und öffnen"
+  },
+  "welcomeCreated": {
+    "message": "„$NAME$“ ist in einem neuen Fenster geöffnet",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "welcomeCreateFailed": {
+    "message": "Das Projekt konnte nicht erstellt werden. Versuche es noch einmal über das Slate-Symbol"
+  },
+  "welcomeExistingWindow": {
+    "message": "Hast du dafür schon ein Fenster voller Tabs? Öffne Slate in diesem Fenster und klicke auf den Ordner mit dem Plus, um es als Projekt zu speichern"
+  },
+  "welcomeSwitchTitle": {
+    "message": "Mit einem Klick wechseln"
+  },
+  "welcomeSwitchText": {
+    "message": "Klicke auf das Slate-Symbol und wähle ein Projekt: Slate öffnet sein Fenster oder holt es nach vorne"
+  },
+  "welcomeSwitchText2": {
+    "message": "Der Buchstabe auf dem Symbol zeigt, zu welchem Projekt das Fenster gehört. Schließe ein Projektfenster jederzeit, seine Tabs bleiben gespeichert"
+  },
+  "welcomeManagerText": {
+    "message": "Projekte umbenennen, sortieren, umfärben oder sichern: alles in der Seitenleiste"
+  },
+  "welcomeManagerButton": {
+    "message": "Verwaltung öffnen"
+  },
+  "welcomeCliText": {
+    "message": "Lieber im Terminal? Öffne und schließe Projekte mit dem optionalen Befehl slate"
+  },
+  "welcomeCliLink": {
+    "message": "So richtest du es ein"
+  },
+  "welcomePrivacy": {
+    "message": "Alles bleibt in diesem Browser: kein Konto, kein Tracking, keine Server"
+  },
+  "welcomeSiteLink": {
+    "message": "Website"
+  },
+  "welcomeSourceLink": {
+    "message": "Quellcode"
+  },
+  "welcomePrivacyLink": {
+    "message": "Datenschutzerklärung"
   }
 }

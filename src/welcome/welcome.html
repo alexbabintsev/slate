@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="welcomeTitle">Welcome to Slate</title>
+  <link rel="icon" href="../../assets/icons/icon32.png">
+  <link rel="stylesheet" href="welcome.css">
+</head>
+<body>
+  <main>
+    <header class="brand">
+      <img src="../../assets/icons/icon128.png" width="36" height="36" alt="">
+      <span>Slate</span>
+    </header>
+
+    <h1 data-i18n="welcomeTitle">Welcome to Slate</h1>
+    <p class="intro" data-i18n="welcomeIntro">One Chrome window for every project. Three quick steps and you're set</p>
+
+    <ol class="steps">
+      <li class="step" id="step-pin">
+        <span class="num" aria-hidden="true">1</span>
+        <div class="body">
+          <h2 data-i18n="welcomePinTitle">Pin Slate to the toolbar</h2>
+          <p data-i18n="welcomePinText">Chrome tucks new extensions behind the puzzle icon. Click it, then the pin next to Slate, so your projects are one click away</p>
+          <div class="pin-demo" aria-hidden="true">
+            <span class="chip" id="demo-puzzle"></span>
+            <span class="arrow">→</span>
+            <span class="chip wide"><img src="../../assets/icons/icon32.png" width="16" height="16" alt=""> Slate <span id="demo-pin"></span></span>
+          </div>
+          <p class="status ok" id="pin-status" hidden><span class="status-icon"></span><span data-i18n="welcomePinned">Pinned, you're all set</span></p>
+        </div>
+      </li>
+
+      <li class="step" id="step-create">
+        <span class="num" aria-hidden="true">2</span>
+        <div class="body">
+          <h2 data-i18n="welcomeCreateTitle">Create your first project</h2>
+          <p data-i18n="welcomeCreateText">Name it after something you work on. Slate opens a fresh window for it and saves its tabs as you go</p>
+          <form id="create-form" class="create" autocomplete="off">
+            <input id="create-name" type="text" maxlength="100" spellcheck="false" required
+              data-i18n-placeholder="welcomeCreatePlaceholder" data-i18n-aria-label="projectName">
+            <button type="submit" class="btn primary" data-i18n="welcomeCreateButton">Create and open</button>
+          </form>
+          <p class="status ok" id="create-status" hidden><span class="status-icon"></span><span id="create-status-text"></span></p>
+          <p class="status error" id="create-error" hidden></p>
+          <p class="hint" data-i18n="welcomeExistingWindow">Already have a window full of tabs for it? Open Slate in that window and click the folder with a plus to save it as a project</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <span class="num" aria-hidden="true">3</span>
+        <div class="body">
+          <h2 data-i18n="welcomeSwitchTitle">Switch in one click</h2>
+          <p data-i18n="welcomeSwitchText">Click the Slate icon and pick a project: Slate opens its window or brings it to the front</p>
+          <p data-i18n="welcomeSwitchText2">The letter on the icon shows which project the window belongs to. Close a project window any time, its tabs stay saved</p>
+        </div>
+      </li>
+    </ol>
+
+    <section class="extras">
+      <div class="extra">
+        <p data-i18n="welcomeManagerText">Rename, reorder and recolor projects, or back them up, in the side panel</p>
+        <button id="open-manager" class="btn" data-i18n="welcomeManagerButton">Open the manager</button>
+      </div>
+      <div class="extra">
+        <p data-i18n="welcomeCliText">Prefer the terminal? Open and close projects with the optional slate command</p>
+        <a class="btn" href="https://github.com/alexbabintsev/slate#cli-optional" target="_blank" rel="noopener" data-i18n="welcomeCliLink">How to set it up</a>
+      </div>
+    </section>
+
+    <footer>
+      <p data-i18n="welcomePrivacy">Everything stays in this browser: no account, no tracking, no servers</p>
+      <nav>
+        <a href="https://slate.babintsev.com" target="_blank" rel="noopener" data-i18n="welcomeSiteLink">Website</a>
+        <a href="https://github.com/alexbabintsev/slate" target="_blank" rel="noopener" data-i18n="welcomeSourceLink">Source code</a>
+        <a href="https://slate.babintsev.com/privacy" target="_blank" rel="noopener" data-i18n="welcomePrivacyLink">Privacy policy</a>
+      </nav>
+    </footer>
+  </main>
+  <script src="welcome.js"></script>
+</body>
+</html>

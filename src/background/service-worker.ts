@@ -17,6 +17,7 @@ import {
 import { createProject, ensureProjectColor } from '../models/project';
 import type { Message, MessageResponse } from '../models/messages';
 import { updateToolbarIcon } from './toolbar-icon';
+import { openWelcomeOnInstall } from './welcome';
 import {
   sanitizeImportedStore,
   sanitizeIcon,
@@ -375,7 +376,10 @@ chrome.tabs.onCreated.addListener(tab => {
 });
 
 chrome.runtime.onStartup.addListener(() => { void runReconcile(); });
-chrome.runtime.onInstalled.addListener(() => { void runReconcile(); });
+chrome.runtime.onInstalled.addListener(details => {
+  void runReconcile();
+  void openWelcomeOnInstall(details);
+});
 
 // Message handler
 // Only this extension's own top-level pages may drive it. An extension page

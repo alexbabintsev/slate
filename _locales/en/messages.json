@@ -214,5 +214,80 @@
   },
   "invalidImport": {
     "message": "This file is not a Slate export."
+  },
+  "welcomeTitle": {
+    "message": "Welcome to Slate"
+  },
+  "welcomeIntro": {
+    "message": "One Chrome window for every project. Three quick steps and you're set"
+  },
+  "welcomePinTitle": {
+    "message": "Pin Slate to the toolbar"
+  },
+  "welcomePinText": {
+    "message": "Chrome tucks new extensions behind the puzzle icon. Click it, then the pin next to Slate, so your projects are one click away"
+  },
+  "welcomePinned": {
+    "message": "Pinned, you're all set"
+  },
+  "welcomeCreateTitle": {
+    "message": "Create your first project"
+  },
+  "welcomeCreateText": {
+    "message": "Name it after something you work on. Slate opens a fresh window for it and saves its tabs as you go"
+  },
+  "welcomeCreatePlaceholder": {
+    "message": "Project name, for example Work"
+  },
+  "welcomeCreateButton": {
+    "message": "Create and open"
+  },
+  "welcomeCreated": {
+    "message": "“$NAME$” is open in a new window",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "welcomeCreateFailed": {
+    "message": "Couldn't create the project. Try again from the Slate icon"
+  },
+  "welcomeExistingWindow": {
+    "message": "Already have a window full of tabs for it? Open Slate in that window and click the folder with a plus to save it as a project"
+  },
+  "welcomeSwitchTitle": {
+    "message": "Switch in one click"
+  },
+  "welcomeSwitchText": {
+    "message": "Click the Slate icon and pick a project: Slate opens its window or brings it to the front"
+  },
+  "welcomeSwitchText2": {
+    "message": "The letter on the icon shows which project the window belongs to. Close a project window any time, its tabs stay saved"
+  },
+  "welcomeManagerText": {
+    "message": "Rename, reorder and recolor projects, or back them up, in the side panel"
+  },
+  "welcomeManagerButton": {
+    "message": "Open the manager"
+  },
+  "welcomeCliText": {
+    "message": "Prefer the terminal? Open and close projects with the optional slate command"
+  },
+  "welcomeCliLink": {
+    "message": "How to set it up"
+  },
+  "welcomePrivacy": {
+    "message": "Everything stays in this browser: no account, no tracking, no servers"
+  },
+  "welcomeSiteLink": {
+    "message": "Website"
+  },
+  "welcomeSourceLink": {
+    "message": "Source code"
+  },
+  "welcomePrivacyLink": {
+    "message": "Privacy policy"
   }
 }

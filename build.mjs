@@ -73,6 +73,7 @@ const entryPoints = [
   { in: 'src/background/service-worker.ts', out: 'dist/service-worker' },
   { in: 'src/popup/popup.ts', out: 'src/popup/popup' },
   { in: 'src/manager/manager.ts', out: 'src/manager/manager' },
+  { in: 'src/welcome/welcome.ts', out: 'src/welcome/welcome' },
 ];
 
 const config = {

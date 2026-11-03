@@ -32,6 +32,7 @@ temp/
 dist/
 src/popup/popup.js
 src/manager/manager.js
+src/welcome/welcome.js
 
 # Generated assets (built from assets/lucide-icons.full.json)
 assets/lucide-icons.json

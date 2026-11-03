@@ -6,6 +6,7 @@ import esJson from '../_locales/es/messages.json';
 import manifest from '../manifest.json';
 import popupHtml from '../src/popup/popup.html?raw';
 import managerHtml from '../src/manager/manager.html?raw';
+import welcomeHtml from '../src/welcome/welcome.html?raw';
 
 type Entry = { message: string; placeholders?: Record<string, { content: string }> };
 type Messages = Record<string, Entry>;
@@ -63,7 +64,7 @@ describe('locale files', () => {
   }
 
   it('every data-i18n key used in the HTML exists', () => {
-    const html = popupHtml + managerHtml;
+    const html = popupHtml + managerHtml + welcomeHtml;
     const keys = [...html.matchAll(/data-i18n(?:-[a-z-]+)?="([^"]+)"/g)].map(m => m[1]);
     expect(keys.length).toBeGreaterThan(20);
     expect(keys.filter(k => !(k in en))).toEqual([]);

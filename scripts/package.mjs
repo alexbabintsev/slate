@@ -27,6 +27,9 @@ const INCLUDE = [
   'src/manager/manager.html',
   'src/manager/manager.css',
   'src/manager/manager.js',
+  'src/welcome/welcome.html',
+  'src/welcome/welcome.css',
+  'src/welcome/welcome.js',
   'src/cli/cli.html',
   'src/cli/cli.js',
 ];
@@ -36,6 +39,7 @@ function ensureBuilt() {
     'dist/service-worker.js',
     'src/popup/popup.js',
     'src/manager/manager.js',
+    'src/welcome/welcome.js',
     'assets/lucide-icons.json',
   ];
   const missing = required.filter(p => !existsSync(join(ROOT, p)));

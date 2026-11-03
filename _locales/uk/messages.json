@@ -268,5 +268,80 @@
   },
   "invalidImport": {
     "message": "Це не файл експорту Slate."
+  },
+  "welcomeTitle": {
+    "message": "Вітаємо в Slate"
+  },
+  "welcomeIntro": {
+    "message": "Окреме вікно Chrome для кожного проєкту. Три короткі кроки, і все готово"
+  },
+  "welcomePinTitle": {
+    "message": "Закріпіть Slate на панелі інструментів"
+  },
+  "welcomePinText": {
+    "message": "Chrome ховає нові розширення за іконкою пазла. Натисніть її, а потім шпильку біля Slate, щоб проєкти були на відстані одного кліку"
+  },
+  "welcomePinned": {
+    "message": "Закріплено, усе готово"
+  },
+  "welcomeCreateTitle": {
+    "message": "Створіть перший проєкт"
+  },
+  "welcomeCreateText": {
+    "message": "Назвіть його за тим, над чим працюєте. Slate відкриє для нього нове вікно й зберігатиме вкладки по ходу роботи"
+  },
+  "welcomeCreatePlaceholder": {
+    "message": "Назва проєкту, наприклад Робота"
+  },
+  "welcomeCreateButton": {
+    "message": "Створити й відкрити"
+  },
+  "welcomeCreated": {
+    "message": "«$NAME$» відкрито в новому вікні",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "welcomeCreateFailed": {
+    "message": "Не вдалося створити проєкт. Спробуйте ще раз через іконку Slate"
+  },
+  "welcomeExistingWindow": {
+    "message": "Уже маєте вікно з вкладками для нього? Відкрийте Slate у цьому вікні й натисніть теку з плюсом, щоб зберегти його як проєкт"
+  },
+  "welcomeSwitchTitle": {
+    "message": "Перемикайтеся одним кліком"
+  },
+  "welcomeSwitchText": {
+    "message": "Натисніть іконку Slate і виберіть проєкт: Slate відкриє його вікно або виведе на передній план"
+  },
+  "welcomeSwitchText2": {
+    "message": "Літера на іконці показує, до якого проєкту належить вікно. Закривайте вікно проєкту будь-коли, його вкладки збережуться"
+  },
+  "welcomeManagerText": {
+    "message": "Перейменовуйте, впорядковуйте й перефарбовуйте проєкти або робіть їхні резервні копії в бічній панелі"
+  },
+  "welcomeManagerButton": {
+    "message": "Відкрити менеджер"
+  },
+  "welcomeCliText": {
+    "message": "Любите термінал? Відкривайте й закривайте проєкти необов'язковою командою slate"
+  },
+  "welcomeCliLink": {
+    "message": "Як налаштувати"
+  },
+  "welcomePrivacy": {
+    "message": "Усе залишається в цьому браузері: без акаунта, без стеження, без серверів"
+  },
+  "welcomeSiteLink": {
+    "message": "Сайт"
+  },
+  "welcomeSourceLink": {
+    "message": "Вихідний код"
+  },
+  "welcomePrivacyLink": {
+    "message": "Політика конфіденційності"
   }
 }
