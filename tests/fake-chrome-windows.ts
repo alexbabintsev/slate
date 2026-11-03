@@ -34,6 +34,8 @@ export function installFakeChrome(opts: FakeChromeOptions = {}) {
   let nextTabId = 100;
   let nextWindowId = 10;
   let nextGroupId = 900;
+  type MessageListener = (msg: unknown, sender: unknown, respond: (r: unknown) => void) => boolean | void;
+  let messageListener: MessageListener | null = null;
 
   // A pre-existing window that is focused - tabs must never leak into it.
   tabs.push({ id: 1, windowId: focusedWindowId, index: 0, url: 'https://focused.example/', pinned: false, active: true, groupId: NO_GROUP });
@@ -137,13 +139,18 @@ export function installFakeChrome(opts: FakeChromeOptions = {}) {
     runtime: {
       onStartup: { addListener: () => {} },
       onInstalled: { addListener: () => {} },
-      onMessage: { addListener: () => {} },
+      id: 'slate-test-id',
+      onMessage: {
+        addListener: (fn: MessageListener) => { messageListener = fn; },
+      },
       lastError: undefined,
     },
     action: {
       setBadgeText: async () => {},
       setBadgeBackgroundColor: async () => {},
       setTitle: async () => {},
+      setIcon: async () => {},
+      setBadgeTextColor: async () => {},
     },
     storage: {
       session: {
@@ -169,6 +176,15 @@ export function installFakeChrome(opts: FakeChromeOptions = {}) {
     group: (groupId: number) => groups.get(groupId),
     groups: () => [...groups.values()],
     setLocal: (k: string, v: unknown) => { local[k] = structuredClone(v); },
+    getLocal: (k: string) => local[k],
+    /** Deliver a message to the service worker's onMessage listener. */
+    sendMessage: (msg: unknown, sender: Record<string, unknown> = {
+      id: 'slate-test-id',
+      url: 'chrome-extension://slate-test-id/src/manager/manager.html',
+    }) => new Promise<any>(resolve => {
+      if (!messageListener) throw new Error('service worker not loaded');
+      messageListener(msg, sender, resolve);
+    }),
     setSession: (k: string, v: unknown) => { session[k] = structuredClone(v); },
     getSession: (k: string) => session[k],
     /** Simulate a window Chrome opened itself, e.g. session restore after a crash. */

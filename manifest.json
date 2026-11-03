@@ -14,17 +14,6 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
   },
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "src/cli/cli.html",
-        "src/cli/cli.js"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
-    }
-  ],
   "side_panel": {
     "default_path": "src/manager/manager.html"
   },

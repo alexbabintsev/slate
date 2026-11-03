@@ -333,7 +333,22 @@ chrome.runtime.onStartup.addListener(() => { void runReconcile(); });
 chrome.runtime.onInstalled.addListener(() => { void runReconcile(); });
 
 // Message handler
-chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {
+// Only this extension's own top-level pages may drive it. An extension page
+// framed inside a website (sender.tab set, frameId !== 0) is refused: that is how
+// a site could steer the extension through its pages.
+export function isTrustedSender(sender: chrome.runtime.MessageSender): boolean {
+  if (sender.id !== chrome.runtime.id) return false;
+  const origin = `chrome-extension://${chrome.runtime.id}/`;
+  if (sender.url !== undefined && !sender.url.startsWith(origin)) return false;
+  if (sender.tab && sender.frameId !== undefined && sender.frameId !== 0) return false;
+  return true;
+}
+
+chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) => {
+  if (!isTrustedSender(sender)) {
+    sendResponse({ ok: false, error: 'Untrusted sender' });
+    return false;
+  }
   handleMessage(message).then(sendResponse);
   return true; // keep channel open for async response
 });
