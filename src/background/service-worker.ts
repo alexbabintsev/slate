@@ -226,10 +226,12 @@ async function handleMessage(message: Message): Promise<MessageResponse> {
       case 'IMPORT_PROJECTS': {
         const cleaned = sanitizeImportedStore(message.store);
         if (!cleaned) return { ok: false, error: 'Invalid import file' };
+        let replaced = 0;
         await storage.updateProjectStore(store => {
+          replaced = Object.keys(cleaned).filter(id => id in store.projects).length;
           Object.assign(store.projects, cleaned);
         });
-        return { ok: true, data: null };
+        return { ok: true, data: { imported: Object.keys(cleaned).length, replaced } };
       }
 
       case 'GET_WINDOW_FOR_PROJECT': {

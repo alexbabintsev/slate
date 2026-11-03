@@ -732,8 +732,18 @@ document.getElementById('btn-import')!.addEventListener('click', () => {
   if (!file) return;
   try {
     const store = JSON.parse(await file.text()) as Partial<ProjectStore>;
-    await send({ type: 'IMPORT_PROJECTS', store });
+    const res = await send<{ imported: number; replaced: number }>({ type: 'IMPORT_PROJECTS', store });
     await refresh();
+    if (!res.ok) {
+      await alertDialog(res.error, 'Import failed');
+    } else {
+      const { imported: n, replaced } = res.data;
+      const plural = (k: number) => `${k} project${k === 1 ? '' : 's'}`;
+      const msg = n === 0
+        ? 'No valid projects found in this file.'
+        : `Imported ${plural(n)}.` + (replaced > 0 ? ` ${plural(replaced)} with the same id replaced.` : '');
+      await alertDialog(msg, 'Import');
+    }
   } catch {
     await alertDialog('Invalid JSON file');
   }
