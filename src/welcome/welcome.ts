@@ -6,6 +6,7 @@ import { Check, Pin, Puzzle, type IconNode } from 'lucide';
 import type { Message, MessageResponse } from '../models/messages';
 import type { Project } from '../models/project';
 import { t, localizeDocument } from '../i18n';
+import { feedbackUrl } from '../feedback';
 
 function icon(node: IconNode, size = 16): SVGSVGElement {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -91,6 +92,7 @@ function setupManager(): void {
 }
 
 localizeDocument();
+$<HTMLAnchorElement>('feedback-link').href = feedbackUrl();
 $('demo-puzzle').appendChild(icon(Puzzle, 18));
 $('demo-pin').appendChild(icon(Pin, 15));
 document.querySelectorAll('.status.ok .status-icon').forEach(el => el.appendChild(icon(Check, 16)));

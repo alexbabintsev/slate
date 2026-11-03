@@ -352,5 +352,11 @@
   },
   "reviewPromptLater": {
     "message": "Не зараз"
+  },
+  "sendFeedback": {
+    "message": "Зворотний зв'язок"
+  },
+  "welcomeFeedbackLink": {
+    "message": "Повідомити про помилку чи запропонувати ідею"
   }
 }

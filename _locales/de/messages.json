@@ -298,5 +298,11 @@
   },
   "reviewPromptLater": {
     "message": "Nicht jetzt"
+  },
+  "sendFeedback": {
+    "message": "Feedback senden"
+  },
+  "welcomeFeedbackLink": {
+    "message": "Fehler melden oder Idee vorschlagen"
   }
 }

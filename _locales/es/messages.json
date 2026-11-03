@@ -298,5 +298,11 @@
   },
   "reviewPromptLater": {
     "message": "Ahora no"
+  },
+  "sendFeedback": {
+    "message": "Enviar comentarios"
+  },
+  "welcomeFeedbackLink": {
+    "message": "Informar de un error o sugerir una función"
   }
 }

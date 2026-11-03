@@ -191,6 +191,13 @@ body {
   color: var(--text-tertiary);
 }
 
+#footer-feedback {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+#footer-feedback:hover { color: var(--accent); }
+
 /* ── Project list ────────────────────────────── */
 #project-list {
   flex: 1;

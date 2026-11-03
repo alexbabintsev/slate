@@ -58,6 +58,10 @@ Slate makes **zero outbound network requests**. The only `fetch()` call in the c
 
 Slate ships with an optional shell wrapper (`cli/slate`) that opens an extension page via `chrome --new-window 'chrome-extension://.../cli/cli.html?action=...'`. This runs entirely on your machine. The CLI does not send data anywhere; it is simply another way to invoke the same in-extension messages that the popup uses.
 
+## Feedback form
+
+The "Send feedback" link in the side panel and on the welcome page opens a form at `https://slate.babintsev.com/feedback`, with the extension's version number in the address. Nothing is sent unless you submit the form. If you do, the website stores your message, the email address you choose to leave (optional, used only to reply), the version number and a short browser description such as "Chrome 156 on macOS", with no IP address, and emails the message to the author. To have it deleted, email slate@babintsev.com.
+
 ## Uninstall survey
 
 When you remove Slate, Chrome opens a short survey at `https://slate.babintsev.com/uninstall` (set with `chrome.runtime.setUninstallURL`). The extension sends nothing to open it: the address carries only the extension's version number, for example `?v=1.1.0`. Answering is optional. If you do, the website stores the reason you pick, your comment and that version number, with no email or IP address. The survey page does not load analytics.

@@ -10,6 +10,7 @@ import {
   type ProjectStore,
 } from '../models/project';
 import { t, tCount, localizeDocument } from '../i18n';
+import { feedbackUrl } from '../feedback';
 
 localizeDocument();
 
@@ -305,6 +306,7 @@ document.getElementById('footer-version')!.textContent = `v${manifest.version}`;
 const author = manifest.author;
 const authorText = typeof author === 'string' ? author : author?.email ?? '';
 document.getElementById('footer-author')!.textContent = authorText;
+(document.getElementById('footer-feedback') as HTMLAnchorElement).href = feedbackUrl();
 
 // ── Virtual grids ──────────────────────────────────────────
 const lucideGrid = new IconGridRenderer('lucide-grid', (name) => {
