@@ -86,8 +86,15 @@ export function normalizeGroups(
   };
 }
 
-async function persist(projectId: string, tabs: chrome.tabs.Tab[], activeIndex: number, windowId: number, groupsOverride?: TabGroupState[]): Promise<void> {
+async function persist(projectId: string, tabs: chrome.tabs.Tab[], fallbackActiveIndex: number, windowId: number, groupsOverride?: TabGroupState[]): Promise<void> {
   const rawTabStates = buildTabStates(tabs);
+  // The tabs carry their own active flag. windowActiveIndex is only a fallback:
+  // it lives in memory and is gone after the service worker restarts, which
+  // used to reset every later save to the first tab.
+  const activeWindowIndex = tabs.find(t => t.active)?.index ?? fallbackActiveIndex;
+  // Stored as a position in the saved tab list, not a window index: tabs with
+  // no url are dropped from the list, which shifts window indices.
+  const activeTabIndex = Math.max(0, rawTabStates.findIndex(t => t.index === activeWindowIndex));
   const rawGroups = groupsOverride ?? await buildTabGroupStates(windowId);
   const referenced = new Set(
     rawTabStates.map(t => t.groupId).filter((id): id is number => id !== undefined),
@@ -108,7 +115,7 @@ async function persist(projectId: string, tabs: chrome.tabs.Tab[], activeIndex: 
     if (rawGroups.length === 0 && referenced.size > 0 && (project.tabGroups?.length ?? 0) > 0) return null;
 
     const { tabs: tabStates, tabGroups } = normalizeGroups(rawTabStates, rawGroups);
-    return { ...project, tabs: tabStates, tabGroups, activeTabIndex: activeIndex };
+    return { ...project, tabs: tabStates, tabGroups, activeTabIndex };
   });
 }
 

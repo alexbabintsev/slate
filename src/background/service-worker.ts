@@ -111,9 +111,12 @@ export async function openProject(projectId: string): Promise<number> {
     }
 
     // Activate the tab that was active when the project was last saved.
-    const activeIndex = project.activeTabIndex ?? 0;
-    const targetTab = createdTabs[activeIndex] ?? createdTabs[0];
-    if (targetTab?.id) await chrome.tabs.update(targetTab.id, { active: true });
+    // activeTabIndex points into project.tabs; the window holds only validTabs,
+    // reordered pinned-first, so translate through the saved tab itself.
+    const activeSaved = project.tabs[project.activeTabIndex ?? 0];
+    const activePos = activeSaved ? validTabs.indexOf(activeSaved) : -1;
+    const targetId = (activePos >= 0 ? tabIdForSaved.get(activePos) : undefined) ?? createdTabs[0]?.id;
+    if (targetId !== undefined) await chrome.tabs.update(targetId, { active: true });
 
     await associateWindow(windowId, projectId);
   } finally {
