@@ -404,8 +404,13 @@ function makeCard(project: Project): HTMLElement {
   nameInput.addEventListener('change', async () => {
     const v = nameInput.value.trim();
     if (!v) { nameInput.value = project.name; return; }
-    project.name = v;
-    await send({ type: 'SAVE_PROJECT', project });
+    const res = await send<Project>({ type: 'UPDATE_PROJECT_META', projectId: project.id, patch: { name: v } });
+    if (res.ok) {
+      project.name = res.data.name;
+      nameInput.value = res.data.name;
+    } else {
+      nameInput.value = project.name;
+    }
   });
 
   const meta = document.createElement('div');
@@ -515,8 +520,9 @@ function renderColorSwatches() {
   container.innerHTML = '';
 
   const saveColor = async (color: string) => {
-    project.color = color;
-    await send({ type: 'SAVE_PROJECT', project });
+    const res = await send<Project>({ type: 'UPDATE_PROJECT_META', projectId: project.id, patch: { color } });
+    if (!res.ok) return;
+    project.color = res.data.color;
     renderColorSwatches();
     renderProjects();
   };
@@ -652,8 +658,8 @@ async function applyIcon(iconVal: string) {
   if (!pendingIconId) return;
   const p = projects.find(p => p.id === pendingIconId);
   if (!p) return;
-  p.icon = iconVal;
-  await send({ type: 'SAVE_PROJECT', project: p });
+  const res = await send<Project>({ type: 'UPDATE_PROJECT_META', projectId: p.id, patch: { icon: iconVal } });
+  if (res.ok) p.icon = res.data.icon;
   closeDialog('icon-dialog');
   renderProjects();
 }
@@ -743,5 +749,40 @@ async function refresh() {
   await loadAll();
   renderAll();
 }
+
+// Keep the panel in step with storage: it can stay open for hours while
+// autosave, the popup or the CLI change projects behind it. A re-render is
+// deferred while the user is editing a name so their typing is not wiped.
+let storageRefreshTimer: ReturnType<typeof setTimeout> | undefined;
+let refreshWhenIdle = false;
+
+function scheduleStorageRefresh() {
+  clearTimeout(storageRefreshTimer);
+  storageRefreshTimer = setTimeout(() => {
+    const editing = document.activeElement?.classList.contains('card-name-input');
+    // Re-rendering mid-drag would pull the dragged card out from under the cursor.
+    const dragging = document.querySelector('.project-card.dragging') !== null;
+    if (editing || dragging) {
+      refreshWhenIdle = true;
+      return;
+    }
+    refresh().catch(console.error);
+  }, 200);
+}
+
+chrome.storage.onChanged.addListener((_changes, area) => {
+  if (area === 'local' || area === 'session') scheduleStorageRefresh();
+});
+
+function flushDeferredRefresh() {
+  if (!refreshWhenIdle) return;
+  refreshWhenIdle = false;
+  // Let the input's change handler / the drop handler save first.
+  setTimeout(scheduleStorageRefresh, 0);
+}
+document.addEventListener('focusout', e => {
+  if ((e.target as HTMLElement | null)?.classList.contains('card-name-input')) flushDeferredRefresh();
+});
+document.addEventListener('dragend', flushDeferredRefresh);
 
 refresh().catch(console.error);

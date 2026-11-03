@@ -17,7 +17,12 @@ import {
 import { createProject, ensureProjectColor } from '../models/project';
 import type { Message, MessageResponse } from '../models/messages';
 import { updateToolbarIcon } from './toolbar-icon';
-import { sanitizeImportedStore } from './import-sanitizer';
+import {
+  sanitizeImportedStore,
+  sanitizeIcon,
+  sanitizeProjectName,
+  sanitizeProjectColor,
+} from './import-sanitizer';
 import { isRestorableUrl, hasFileAccess } from './restorable-url';
 
 export async function openProject(projectId: string): Promise<number> {
@@ -162,7 +167,9 @@ async function handleMessage(message: Message): Promise<MessageResponse> {
       }
 
       case 'CREATE_PROJECT': {
-        const project = ensureProjectColor(createProject(message.name, message.icon));
+        const name = sanitizeProjectName(message.name);
+        if (!name) return { ok: false, error: 'Project name is required' };
+        const project = ensureProjectColor(createProject(name, sanitizeIcon(message.icon)));
         await storage.updateProjectStore(store => {
           const maxOrder = Math.max(0, ...Object.values(store.projects).map(p => p.sortOrder));
           project.sortOrder = maxOrder + 1000;
@@ -246,9 +253,23 @@ async function handleMessage(message: Message): Promise<MessageResponse> {
         return { ok: true, data: null };
       }
 
-      case 'SAVE_PROJECT': {
-        await storage.saveProject(message.project);
-        const wid = await getWindowForProject(message.project.id);
+      case 'UPDATE_PROJECT_META': {
+        const { patch } = message;
+        const name = patch.name !== undefined ? sanitizeProjectName(patch.name) : undefined;
+        if (name === null) return { ok: false, error: 'Project name is required' };
+        const color = patch.color !== undefined ? sanitizeProjectColor(patch.color) : undefined;
+        if (patch.color !== undefined && color === undefined) return { ok: false, error: 'Invalid color' };
+        const icon = patch.icon !== undefined ? sanitizeIcon(patch.icon) : undefined;
+
+        const updated = await storage.updateProject(message.projectId, p => ({
+          ...p,
+          ...(name !== undefined && { name }),
+          ...(icon !== undefined && { icon }),
+          ...(color !== undefined && { color }),
+        }));
+        if (!updated) return { ok: false, error: 'Project not found' };
+
+        const wid = await getWindowForProject(message.projectId);
         if (wid !== null) {
           await updateToolbarIcon(wid);
           // Restore active window's icon since Chrome badge is global
@@ -257,7 +278,7 @@ async function handleMessage(message: Message): Promise<MessageResponse> {
             void updateToolbarIcon(activeWin.id);
           }
         }
-        return { ok: true, data: null };
+        return { ok: true, data: updated };
       }
 
       default:

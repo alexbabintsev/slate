@@ -5,6 +5,8 @@ export type CLICommand =
   | { action: 'close'; projectName: string }
   | { action: 'list' };
 
+export type ProjectMetaPatch = Partial<Pick<Project, 'name' | 'icon' | 'color'>>;
+
 export type Message =
   | { type: 'GET_CURRENT_PROJECT'; windowId: number }
   | { type: 'GET_ALL_PROJECTS' }
@@ -12,7 +14,9 @@ export type Message =
   | { type: 'CLOSE_PROJECT'; projectId: string }
   | { type: 'CREATE_PROJECT'; name: string; icon?: string }
   | { type: 'DELETE_PROJECT'; projectId: string }
-  | { type: 'SAVE_PROJECT'; project: Project }
+  // Only the user-editable fields: the UI's copy of the tabs may be stale, and
+  // sending a whole project used to overwrite newer autosaved tabs with it.
+  | { type: 'UPDATE_PROJECT_META'; projectId: string; patch: ProjectMetaPatch }
   | { type: 'REORDER_PROJECTS'; orderedIds: string[] }
   | { type: 'EXPORT_PROJECTS' }
   | { type: 'IMPORT_PROJECTS'; store: Partial<ProjectStore> }
