@@ -1,6 +1,6 @@
 # Privacy Policy for Slate
 
-**Effective date:** April 26, 2026
+**Effective date:** November 3, 2026
 **Author:** Alex Babintsev
 
 Slate is a browser extension that helps you organize Chrome windows into named projects with saved tab sets. This document explains exactly what data Slate handles, where it lives, and what it never does.
