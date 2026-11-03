@@ -1,6 +1,6 @@
 import { getStorage } from '../storage/storage-factory';
 import { getProjectForWindow } from './window-tracker';
-import type { TabState, TabGroupState } from '../models/project';
+import { DEFAULT_SETTINGS, type TabState, type TabGroupState } from '../models/project';
 
 const pendingSaves = new Map<string, ReturnType<typeof setTimeout>>();
 const windowTabCache = new Map<number, chrome.tabs.Tab[]>();
@@ -145,6 +145,17 @@ async function refreshCache(windowId: number): Promise<void> {
   if (tabs.length > 0) windowTabCache.set(windowId, tabs);
 }
 
+// The setting has no UI and changes rarely; reading the whole store (icons
+// included) on every tab event just to get it was the hot path's main cost.
+let debounceMsPromise: Promise<number> | null = null;
+function getAutoSaveDebounceMs(): Promise<number> {
+  debounceMsPromise ??= getStorage()
+    .getProjectStore()
+    .then(store => store.settings?.autoSaveDebounceMs ?? DEFAULT_SETTINGS.autoSaveDebounceMs)
+    .catch(() => { debounceMsPromise = null; return DEFAULT_SETTINGS.autoSaveDebounceMs; });
+  return debounceMsPromise;
+}
+
 function scheduleSave(windowId: number, delayMs?: number): void {
   void (async () => {
     if (restoringWindows.has(windowId)) return;
@@ -155,11 +166,7 @@ function scheduleSave(windowId: number, delayMs?: number): void {
     const existing = pendingSaves.get(projectId);
     if (existing) clearTimeout(existing);
 
-    let ms = delayMs;
-    if (ms === undefined) {
-      const store = await getStorage().getProjectStore();
-      ms = store.settings.autoSaveDebounceMs;
-    }
+    const ms = delayMs ?? await getAutoSaveDebounceMs();
 
     const timer = setTimeout(() => {
       pendingSaves.delete(projectId);
@@ -181,9 +188,17 @@ export function registerTabListeners(): void {
     scheduleSave(info.windowId, 300);
   });
 
-  // Keep cache fresh
-  chrome.tabs.onUpdated.addListener(async (_, _changeInfo, tab) => {
-    if (tab.windowId) await refreshCache(tab.windowId);
+  // Keep cache fresh - but only for changes to what a save records. onUpdated
+  // also fires for loading status, audio, discard state and more, in every
+  // window, and each refresh is a full tabs.query.
+  chrome.tabs.onUpdated.addListener(async (_, changeInfo, tab) => {
+    const relevant = changeInfo.url !== undefined
+      || changeInfo.title !== undefined
+      || changeInfo.pinned !== undefined
+      || changeInfo.favIconUrl !== undefined
+      || (changeInfo as { groupId?: number }).groupId !== undefined
+      || changeInfo.status === 'complete';
+    if (relevant && tab.windowId) await refreshCache(tab.windowId);
   });
 
   chrome.tabs.onMoved.addListener(async (_, info) => {
