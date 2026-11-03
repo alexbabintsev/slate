@@ -145,13 +145,13 @@ async function refreshCache(windowId: number): Promise<void> {
   if (tabs.length > 0) windowTabCache.set(windowId, tabs);
 }
 
-// The setting has no UI and changes rarely; reading the whole store (icons
-// included) on every tab event just to get it was the hot path's main cost.
+// The setting has no UI and changes rarely; read it once per worker lifetime
+// rather than on every tab event.
 let debounceMsPromise: Promise<number> | null = null;
 function getAutoSaveDebounceMs(): Promise<number> {
   debounceMsPromise ??= getStorage()
-    .getProjectStore()
-    .then(store => store.settings?.autoSaveDebounceMs ?? DEFAULT_SETTINGS.autoSaveDebounceMs)
+    .getSettings()
+    .then(settings => settings.autoSaveDebounceMs ?? DEFAULT_SETTINGS.autoSaveDebounceMs)
     .catch(() => { debounceMsPromise = null; return DEFAULT_SETTINGS.autoSaveDebounceMs; });
   return debounceMsPromise;
 }

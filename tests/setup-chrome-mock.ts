@@ -1,5 +1,6 @@
-// Minimal chrome.storage.local mock for unit tests.
+// Minimal chrome.storage mock for unit tests.
 // Each operation has a configurable async delay so tests can simulate races.
+import { createFakeArea } from './fake-storage-area';
 
 export type MockStorage = {
   store: Record<string, unknown>;
@@ -8,36 +9,23 @@ export type MockStorage = {
 };
 
 export function installChromeStorageMock(): MockStorage {
-  const state: MockStorage = {
-    store: {},
-    getDelayMs: 0,
-    setDelayMs: 0,
-  };
-
-  const wait = (ms: number) =>
-    ms > 0 ? new Promise<void>(r => setTimeout(r, ms)) : Promise.resolve();
-
-  const local = {
-    get: async (key: string) => {
-      await wait(state.getDelayMs);
-      return key in state.store
-        ? { [key]: structuredClone(state.store[key]) }
-        : {};
-    },
-    set: async (entry: Record<string, unknown>) => {
-      await wait(state.setDelayMs);
-      for (const [k, v] of Object.entries(entry)) {
-        state.store[k] = structuredClone(v);
-      }
-    },
-    onChanged: { addListener: () => {}, removeListener: () => {} },
-  };
+  const local = createFakeArea();
+  const session = createFakeArea();
 
   (globalThis as unknown as { chrome: unknown }).chrome = {
-    storage: { local, session: { ...local } },
+    storage: { local: local.area, session: session.area },
   };
 
-  return state;
+  // Delays and data are read live from the area, so writes through this
+  // handle (mock.setDelayMs = 5, mock.store) reach it.
+  return {
+    get store() { return local.data; },
+    set store(v) { local.data = v; },
+    get getDelayMs() { return local.getDelayMs; },
+    set getDelayMs(v) { local.getDelayMs = v; },
+    get setDelayMs() { return local.setDelayMs; },
+    set setDelayMs(v) { local.setDelayMs = v; },
+  };
 }
 
 export function clearChromeStorageMock(state: MockStorage): void {

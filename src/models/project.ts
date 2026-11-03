@@ -27,7 +27,16 @@ export type Project = {
   activeTabIndex: number;
   createdAt: number;
   updatedAt: number;
+  /** Device that made the last write (see IStorage.getDeviceId); set by storage. */
+  updatedBy?: string;
   sortOrder: number;
+};
+
+/** Left behind when a project is deleted, so a future sync can propagate the deletion. */
+export type Tombstone = {
+  id: string;
+  deletedAt: number;
+  deletedBy: string;
 };
 
 export type AppSettings = {

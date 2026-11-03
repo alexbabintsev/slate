@@ -27,7 +27,7 @@ async function load(fake: Fake, p: Project) {
   return { openProject: sw.openProject, saveProjectTabs: sync.saveProjectTabs };
 }
 
-const stored = (fake: Fake) => (fake.getLocal('projectStore') as ProjectStore).projects.p1;
+const stored = (fake: Fake) => fake.getProject('p1')!;
 
 describe('active tab', () => {
   let fake: Fake;

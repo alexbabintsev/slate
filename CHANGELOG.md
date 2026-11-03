@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- Storage moved to one record per project (schema 2). Projects used to share a
+  single storage key, so every tab change rewrote all projects, uploaded icons
+  included; now autosave writes only the project that changed. Existing data is
+  migrated on first start: the old copy is removed only after every project is
+  confirmed in its new place, and an interrupted migration resumes safely.
+- Deleted projects leave a small tombstone, and every write records its time and
+  a random id of the installation. Nothing uses these yet; they are groundwork
+  for syncing projects between devices.
+
 ## [1.0.3] - 2026-11-03
 
 ### Fixed

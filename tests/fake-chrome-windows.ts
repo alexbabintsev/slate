@@ -6,6 +6,8 @@
 //   2. chrome.tabs.group without createProperties.windowId puts the tabs into
 //      the currently focused window rather than the tabs' own window.
 
+import { createFakeArea } from './fake-storage-area';
+
 export type FakeTab = {
   id: number;
   windowId: number;
@@ -161,11 +163,7 @@ export function installFakeChrome(opts: FakeChromeOptions = {}) {
         set: async (e: Record<string, unknown>) => { Object.assign(session, structuredClone(e)); },
         onChanged: { addListener: () => {} },
       },
-      local: {
-        get: async (k: string) => (k in local ? { [k]: structuredClone(local[k]) } : {}),
-        set: async (e: Record<string, unknown>) => { Object.assign(local, structuredClone(e)); },
-        onChanged: { addListener: () => {} },
-      },
+      local: createFakeArea(local).area,
     },
   };
 
@@ -180,6 +178,13 @@ export function installFakeChrome(opts: FakeChromeOptions = {}) {
     groups: () => [...groups.values()],
     setLocal: (k: string, v: unknown) => { local[k] = structuredClone(v); },
     getLocal: (k: string) => local[k],
+    /**
+     * A project as storage holds it: its own key in schema 2, or inside the
+     * legacy `projectStore` when nothing has written (and so migrated) yet.
+     */
+    getProject: (id: string) => (local[`project:${id}`]
+      ?? (local.projectStore as { projects?: Record<string, unknown> } | undefined)?.projects?.[id]) as
+      import('../src/models/project').Project | undefined,
     /** Deliver a message to the service worker's onMessage listener. */
     sendMessage: (msg: unknown, sender: Record<string, unknown> = {
       id: 'slate-test-id',

@@ -29,7 +29,7 @@ describe('UPDATE_PROJECT_META', () => {
     await import('../src/background/service-worker');
   });
 
-  const stored = () => (fake.getLocal('projectStore') as ProjectStore).projects.p1;
+  const stored = () => fake.getProject('p1')!;
 
   it('renames without touching the autosaved tabs', async () => {
     const res = await fake.sendMessage({ type: 'UPDATE_PROJECT_META', projectId: 'p1', patch: { name: '  Renamed  ' } });
@@ -52,6 +52,6 @@ describe('UPDATE_PROJECT_META', () => {
   it('reports a missing project instead of creating it', async () => {
     const res = await fake.sendMessage({ type: 'UPDATE_PROJECT_META', projectId: 'nope', patch: { name: 'x' } });
     expect(res.ok).toBe(false);
-    expect((fake.getLocal('projectStore') as ProjectStore).projects.nope).toBeUndefined();
+    expect(fake.getProject('nope')).toBeUndefined();
   });
 });

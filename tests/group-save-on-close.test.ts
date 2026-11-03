@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { createFakeArea } from './fake-storage-area';
 import { DEFAULT_SETTINGS } from '../src/models/project';
 import type { Project } from '../src/models/project';
 
@@ -65,11 +66,7 @@ function installChrome() {
       onMessage: on('runtime.onMessage'),
     },
     storage: {
-      local: {
-        get: async (k: string) => (k in local ? { [k]: structuredClone(local[k]) } : {}),
-        set: async (e: any) => { Object.assign(local, structuredClone(e)); },
-        onChanged: { addListener: () => {} },
-      },
+      local: createFakeArea(local).area,
       session: {
         get: async (k: string) => (k in session ? { [k]: structuredClone(session[k]) } : {}),
         set: async (e: any) => { Object.assign(session, structuredClone(e)); },
@@ -129,7 +126,7 @@ describe('grouping then closing the window', () => {
     await env.fire('tabs.onRemoved', 1, { windowId: WIN, isWindowClosing: true });
     await new Promise(r => setTimeout(r, 50));
 
-    const saved = env.local.projectStore.projects.p1;
+    const saved = env.local['project:p1'];
     expect(saved.tabGroups).toHaveLength(1);
     expect(saved.tabGroups[0].title).toBe('Shop');
     expect(saved.tabs.map((t: any) => t.groupId)).toEqual([0, 0]);
@@ -168,7 +165,7 @@ describe('group edits after the initial grouping', () => {
     await env.fire('tabs.onRemoved', 1, { windowId: WIN, isWindowClosing: true });
     await new Promise(r => setTimeout(r, 50));
 
-    const saved = env.local.projectStore.projects.p1;
+    const saved = env.local['project:p1'];
     expect(saved.tabGroups).toHaveLength(1);
     expect(saved.tabGroups[0].title).toBe('Shop');
     expect(saved.tabGroups[0].collapsed).toBe(true);
@@ -203,7 +200,7 @@ describe('group edits after the initial grouping', () => {
     await env.fire('tabs.onRemoved', 1, { windowId: WIN, isWindowClosing: true });
     await new Promise(r => setTimeout(r, 50));
 
-    const saved = env.local.projectStore.projects.p1;
+    const saved = env.local['project:p1'];
     expect(saved.tabGroups).toEqual([]);
     expect(saved.tabs.every((t: any) => t.groupId === undefined)).toBe(true);
   });
@@ -236,7 +233,7 @@ describe('window close event ordering', () => {
     await env.fire('tabGroups.onCreated', g);
     await new Promise(r => setTimeout(r, 40));
 
-    expect(env.local.projectStore.projects.p1.tabGroups).toHaveLength(1);
+    expect(env.local['project:p1'].tabGroups).toHaveLength(1);
 
     // Window closes: it stops answering, its group goes, THEN the tabs go.
     // The tabs still carry groupId 777 throughout.
@@ -246,7 +243,7 @@ describe('window close event ordering', () => {
     await env.fire('tabs.onRemoved', 1, { windowId: WIN, isWindowClosing: true });
     await new Promise(r => setTimeout(r, 60));
 
-    const saved = env.local.projectStore.projects.p1;
+    const saved = env.local['project:p1'];
     expect(saved.tabGroups).toHaveLength(1);
     expect(saved.tabGroups[0].title).toBe('Shop');
   });
