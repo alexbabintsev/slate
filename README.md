@@ -93,6 +93,7 @@ Slate requests only what it needs:
 - `tabs`, `tabGroups` - read URLs/titles/group state to save and restore project tab sets
 - `storage` - store projects in `chrome.storage.local`
 - `sidePanel` - show the project manager in Chrome's side panel
+- `unlimitedStorage` - lift the 10 MB `chrome.storage.local` cap so uploaded icons can't fill it and break saving
 
 No host permissions, no content scripts, no network access. See [PRIVACY.md](PRIVACY.md).
 

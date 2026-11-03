@@ -40,6 +40,7 @@ This data is stored only inside Chrome's extension storage on your computer. It 
 | `tabGroups` | Read and recreate Chrome tab groups (title, color, collapsed state) when restoring a project window. |
 | `storage` | Persist projects to `chrome.storage.local` on your device. |
 | `sidePanel` | Show the project manager UI in Chrome's side panel. |
+| `unlimitedStorage` | Lift the 10 MB cap on `chrome.storage.local`, so projects with uploaded icons cannot fill it and make saves fail. Data still stays on your device. |
 
 Slate does not request any host permissions and does not run content scripts on any web page.
 
