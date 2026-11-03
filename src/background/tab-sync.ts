@@ -22,6 +22,12 @@ export function unmarkWindowRestoring(windowId: number): void {
   restoringWindows.delete(windowId);
 }
 
+// Windows openProject is building right now - reconciliation must not claim
+// them for some other project before openProject associates them.
+export function getRestoringWindows(): ReadonlySet<number> {
+  return restoringWindows;
+}
+
 function buildTabStates(tabs: chrome.tabs.Tab[]): TabState[] {
   return tabs
     .sort((a, b) => a.index - b.index)

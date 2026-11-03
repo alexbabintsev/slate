@@ -1,6 +1,13 @@
 import { getStorage } from '../storage/storage-factory';
-import { reconcileOnStartup } from './startup-reconciler';
-import { registerTabListeners, clearWindowCache, markWindowRestoring, unmarkWindowRestoring, saveProjectTabs } from './tab-sync';
+import { reconcileWindows, findUnassignedWindowForProject } from './startup-reconciler';
+import {
+  registerTabListeners,
+  clearWindowCache,
+  markWindowRestoring,
+  unmarkWindowRestoring,
+  saveProjectTabs,
+  getRestoringWindows,
+} from './tab-sync';
 import {
   associateWindow,
   dissociateWindow,
@@ -23,6 +30,16 @@ export async function openProject(projectId: string): Promise<number> {
   const storage = getStorage();
   const project = await storage.getProject(projectId);
   if (!project) throw new Error(`Project ${projectId} not found`);
+
+  // Chrome may already have reopened this project's window on its own (session
+  // restore after a crash) without us knowing which project it belongs to.
+  // Adopt it rather than opening a second copy of the same tabs.
+  const adoptId = await findUnassignedWindowForProject(project, getRestoringWindows());
+  if (adoptId !== null) {
+    await associateWindow(adoptId, projectId);
+    await chrome.windows.update(adoptId, { focused: true });
+    return adoptId;
+  }
 
   const pinnedTabs = project.tabs.filter(t => t.pinned);
   const regularTabs = project.tabs.filter(t => !t.pinned);
@@ -114,7 +131,12 @@ async function handleMessage(message: Message): Promise<MessageResponse> {
   try {
     switch (message.type) {
       case 'GET_CURRENT_PROJECT': {
-        const projectId = await getProjectForWindow(message.windowId);
+        let projectId = await getProjectForWindow(message.windowId);
+        if (!projectId) {
+          // Last chance for a window restored after the automatic passes ran.
+          await runReconcile();
+          projectId = await getProjectForWindow(message.windowId);
+        }
         if (!projectId) return { ok: true, data: null };
         const project = await storage.getProject(projectId);
         return { ok: true, data: project };
@@ -256,16 +278,59 @@ chrome.windows.onRemoved.addListener(async windowId => {
   // tabs.onRemoved with isWindowClosing already handled the save from cache
   await dissociateWindow(windowId);
   clearWindowCache(windowId);
+  recentWindows.delete(windowId);
 });
 
-// Startup reconciliation
-chrome.runtime.onStartup.addListener(async () => {
-  await reconcileOnStartup();
+// ── Window -> project reconciliation ─────────────────────────
+// The window map is lost on every Chrome restart. Matching windows only at
+// onStartup misses windows that come back later - after a crash Chrome restores
+// them only when the user clicks "Restore". So reconcile again whenever windows
+// appear, once their tabs have had a moment to arrive.
+
+let reconcileChain: Promise<void> = Promise.resolve();
+
+// Serialized: two overlapping passes could hand the same project to two windows.
+function runReconcile(): Promise<void> {
+  const run = reconcileChain.then(async () => {
+    const assigned = await reconcileWindows(getRestoringWindows());
+    await Promise.all(assigned.map(id => updateToolbarIcon(id)));
+  });
+  reconcileChain = run.catch(err => console.warn('[Slate] reconcile failed', err));
+  return reconcileChain;
+}
+
+const RECONCILE_DEBOUNCE_MS = 1500;
+// How long after a window appears its incoming tabs still trigger a pass.
+const NEW_WINDOW_WINDOW_MS = 15_000;
+const recentWindows = new Map<number, number>();
+let reconcileTimer: ReturnType<typeof setTimeout> | undefined;
+
+function scheduleReconcile(): void {
+  clearTimeout(reconcileTimer);
+  reconcileTimer = setTimeout(() => { void runReconcile(); }, RECONCILE_DEBOUNCE_MS);
+}
+
+chrome.windows.onCreated.addListener(win => {
+  if (win.id === undefined || win.type !== 'normal') return;
+  if (getRestoringWindows().has(win.id)) return;
+  recentWindows.set(win.id, Date.now());
+  scheduleReconcile();
 });
 
-chrome.runtime.onInstalled.addListener(async () => {
-  await reconcileOnStartup();
+// A restored window fills with tabs after onCreated - keep pushing the pass back
+// until they have all landed, so it scores the full set.
+chrome.tabs.onCreated.addListener(tab => {
+  const createdAt = recentWindows.get(tab.windowId);
+  if (createdAt === undefined) return;
+  if (Date.now() - createdAt > NEW_WINDOW_WINDOW_MS) {
+    recentWindows.delete(tab.windowId);
+    return;
+  }
+  scheduleReconcile();
 });
+
+chrome.runtime.onStartup.addListener(() => { void runReconcile(); });
+chrome.runtime.onInstalled.addListener(() => { void runReconcile(); });
 
 // Message handler
 chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {

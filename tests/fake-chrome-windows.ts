@@ -66,6 +66,11 @@ export function installFakeChrome(opts: FakeChromeOptions = {}) {
       update: async () => ({}),
       remove: async () => {},
       getLastFocused: async () => ({ id: focusedWindowId }),
+      getAll: async () => {
+        const ids = [...new Set(tabs.map(t => t.windowId))];
+        return ids.map(id => ({ id, type: 'normal', tabs: inWindow(id).map(t => ({ ...t })) }));
+      },
+      onCreated: { addListener: () => {} },
       onFocusChanged: { addListener: () => {} },
       onRemoved: { addListener: () => {} },
     },
@@ -164,5 +169,15 @@ export function installFakeChrome(opts: FakeChromeOptions = {}) {
     group: (groupId: number) => groups.get(groupId),
     groups: () => [...groups.values()],
     setLocal: (k: string, v: unknown) => { local[k] = structuredClone(v); },
+    setSession: (k: string, v: unknown) => { session[k] = structuredClone(v); },
+    getSession: (k: string) => session[k],
+    /** Simulate a window Chrome opened itself, e.g. session restore after a crash. */
+    addWindow: (urls: string[]) => {
+      const windowId = nextWindowId++;
+      urls.forEach((u, i) => {
+        tabs.push({ id: nextTabId++, windowId, index: i, url: u, pinned: false, active: i === 0, groupId: NO_GROUP });
+      });
+      return windowId;
+    },
   };
 }
