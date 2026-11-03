@@ -60,6 +60,14 @@ describe('review prompt', () => {
     expect(await rp.takeReviewPrompt(rp.MAX_IMPRESSIONS + rp.SNOOZE)).toBe(true);
   });
 
+  it('never asks people whose administrator installed Slate', async () => {
+    (globalThis as unknown as { chrome: { management: unknown } }).chrome.management = {
+      getSelf: async () => ({ installType: 'admin' }),
+    };
+    await openTimes(rp.MIN_OPENS);
+    expect(await rp.takeReviewPrompt(365 * DAY)).toBe(false);
+  });
+
   it('links to the Web Store reviews of the published extension', () => {
     expect(rp.REVIEW_URL).toBe('https://chromewebstore.google.com/detail/keiaafjcddiababjlpgbfciohdebiggm/reviews');
   });

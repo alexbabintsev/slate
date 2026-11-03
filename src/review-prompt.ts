@@ -3,10 +3,12 @@
 // in chrome.storage.local; nothing is sent anywhere.
 //
 //   - the service worker counts project opens (recordProjectOpen)
-//   - the popup asks shouldShowReviewPrompt() and reports what the user did
+//   - the popup asks takeReviewPrompt() and reports what the user did
 //
 // Separate keys, so the service worker's counter and the popup's state never
 // overwrite each other.
+
+import { isAdminInstall } from './install-type';
 
 export const REVIEW_URL = 'https://chromewebstore.google.com/detail/keiaafjcddiababjlpgbfciohdebiggm/reviews';
 
@@ -83,8 +85,12 @@ export function recordProjectOpen(): Promise<void> {
 
 /* ---- popup ---- */
 
-/** Whether to show the banner now; counts the showing, and ignoring it too often snoozes it. */
+/**
+ * Whether to show the banner now; counts the showing, and ignoring it too often
+ * snoozes it. Never for admin installs: those people did not pick Slate.
+ */
 export async function takeReviewPrompt(now = Date.now()): Promise<boolean> {
+  if (await isAdminInstall()) return false;
   const data = await read();
   if (!decide(data, now)) return false;
   const impressions = data.state.impressions + 1;
