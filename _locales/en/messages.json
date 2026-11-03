@@ -1,0 +1,218 @@
+{
+  "pluralLocale": {
+    "message": "en"
+  },
+  "extName": {
+    "message": "Slate - Window per Project"
+  },
+  "extDescription": {
+    "message": "Tab manager that gives every project its own Chrome window with saved tabs, groups, and pinned state. Switch contexts instantly."
+  },
+  "actionTitleNoProject": {
+    "message": "Slate - No project"
+  },
+  "actionTitleProject": {
+    "message": "Slate - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "currentProject": {
+    "message": "Current project"
+  },
+  "noProject": {
+    "message": "No Project"
+  },
+  "createFromWindow": {
+    "message": "Create project from this window"
+  },
+  "newProject": {
+    "message": "New Project"
+  },
+  "manageProjects": {
+    "message": "Manage projects"
+  },
+  "projectName": {
+    "message": "Project name"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "ok": {
+    "message": "OK"
+  },
+  "tabs_zero": {
+    "message": "No tabs"
+  },
+  "tabs_one": {
+    "message": "$COUNT$ tab",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "tabs_other": {
+    "message": "$COUNT$ tabs",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "emptyNoProjects": {
+    "message": "No projects yet. Create one to get started."
+  },
+  "emptyNoOtherProjects": {
+    "message": "No other projects."
+  },
+  "windowIsOpen": {
+    "message": "Window is open"
+  },
+  "projects": {
+    "message": "Projects"
+  },
+  "importProjects": {
+    "message": "Import projects"
+  },
+  "exportProjects": {
+    "message": "Export projects"
+  },
+  "windowHasNoProject": {
+    "message": "This window has no project"
+  },
+  "createProjectEllipsis": {
+    "message": "Create project…"
+  },
+  "chooseIcon": {
+    "message": "Choose icon"
+  },
+  "color": {
+    "message": "Color"
+  },
+  "icons": {
+    "message": "Icons"
+  },
+  "upload": {
+    "message": "Upload"
+  },
+  "clearIcon": {
+    "message": "Clear icon"
+  },
+  "searchIcons": {
+    "message": "Search icons…"
+  },
+  "uploadPrompt": {
+    "message": "Click or drag an image"
+  },
+  "uploadHint": {
+    "message": "PNG, JPG, SVG, WebP - max 512 KB"
+  },
+  "useThisImage": {
+    "message": "Use this image"
+  },
+  "chooseDifferent": {
+    "message": "Choose different"
+  },
+  "deleteProjectQuestion": {
+    "message": "Delete project?"
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "assignWindowTitle": {
+    "message": "Assign window to project"
+  },
+  "assignWindowBody": {
+    "message": "Choose which project this window belongs to:"
+  },
+  "notice": {
+    "message": "Notice"
+  },
+  "managerEmpty": {
+    "message": "No projects yet. Click “New Project” to get started."
+  },
+  "changeIcon": {
+    "message": "Change icon"
+  },
+  "focusWindow": {
+    "message": "Focus window"
+  },
+  "openProject": {
+    "message": "Open project"
+  },
+  "deleteProject": {
+    "message": "Delete project"
+  },
+  "chooseCustomColor": {
+    "message": "Choose custom color"
+  },
+  "imageTooLarge": {
+    "message": "Image must be under 512 KB"
+  },
+  "deleteMessage": {
+    "message": "“$NAME$” will be permanently deleted. Any open window will be unlinked.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "importFailed": {
+    "message": "Import failed"
+  },
+  "importTitle": {
+    "message": "Import"
+  },
+  "importNone": {
+    "message": "No valid projects found in this file."
+  },
+  "importDone_one": {
+    "message": "Imported $COUNT$ project.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importDone_other": {
+    "message": "Imported $COUNT$ projects.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importReplaced_one": {
+    "message": "$COUNT$ project with the same id was replaced.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importReplaced_other": {
+    "message": "$COUNT$ projects with the same id were replaced.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "invalidJson": {
+    "message": "Invalid JSON file"
+  },
+  "invalidImport": {
+    "message": "This file is not a Slate export."
+  }
+}

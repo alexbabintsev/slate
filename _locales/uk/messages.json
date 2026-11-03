@@ -1,0 +1,272 @@
+{
+  "pluralLocale": {
+    "message": "uk"
+  },
+  "extName": {
+    "message": "Slate - вікно для кожного проєкту"
+  },
+  "extDescription": {
+    "message": "Менеджер вкладок: кожен проєкт отримує власне вікно Chrome зі збереженими вкладками, групами й закріпленими вкладками."
+  },
+  "actionTitleNoProject": {
+    "message": "Slate - без проєкту"
+  },
+  "actionTitleProject": {
+    "message": "Slate - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "currentProject": {
+    "message": "Поточний проєкт"
+  },
+  "noProject": {
+    "message": "Без проєкту"
+  },
+  "createFromWindow": {
+    "message": "Створити проєкт із цього вікна"
+  },
+  "newProject": {
+    "message": "Новий проєкт"
+  },
+  "manageProjects": {
+    "message": "Керувати проєктами"
+  },
+  "projectName": {
+    "message": "Назва проєкту"
+  },
+  "cancel": {
+    "message": "Скасувати"
+  },
+  "ok": {
+    "message": "OK"
+  },
+  "tabs_zero": {
+    "message": "Немає вкладок"
+  },
+  "tabs_one": {
+    "message": "$COUNT$ вкладка",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "tabs_few": {
+    "message": "$COUNT$ вкладки",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "tabs_many": {
+    "message": "$COUNT$ вкладок",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "tabs_other": {
+    "message": "$COUNT$ вкладки",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "emptyNoProjects": {
+    "message": "Проєктів ще немає. Створіть перший."
+  },
+  "emptyNoOtherProjects": {
+    "message": "Інших проєктів немає."
+  },
+  "windowIsOpen": {
+    "message": "Вікно відкрите"
+  },
+  "projects": {
+    "message": "Проєкти"
+  },
+  "importProjects": {
+    "message": "Імпортувати проєкти"
+  },
+  "exportProjects": {
+    "message": "Експортувати проєкти"
+  },
+  "windowHasNoProject": {
+    "message": "Це вікно не прив’язане до проєкту"
+  },
+  "createProjectEllipsis": {
+    "message": "Створити проєкт…"
+  },
+  "chooseIcon": {
+    "message": "Вибір іконки"
+  },
+  "color": {
+    "message": "Колір"
+  },
+  "icons": {
+    "message": "Іконки"
+  },
+  "upload": {
+    "message": "Завантажити"
+  },
+  "clearIcon": {
+    "message": "Прибрати іконку"
+  },
+  "searchIcons": {
+    "message": "Пошук іконок…"
+  },
+  "uploadPrompt": {
+    "message": "Натисніть або перетягніть зображення"
+  },
+  "uploadHint": {
+    "message": "PNG, JPG, SVG, WebP - до 512 КБ"
+  },
+  "useThisImage": {
+    "message": "Використати це зображення"
+  },
+  "chooseDifferent": {
+    "message": "Вибрати інше"
+  },
+  "deleteProjectQuestion": {
+    "message": "Видалити проєкт?"
+  },
+  "delete": {
+    "message": "Видалити"
+  },
+  "assignWindowTitle": {
+    "message": "Прив’язати вікно до проєкту"
+  },
+  "assignWindowBody": {
+    "message": "Виберіть проєкт для цього вікна:"
+  },
+  "notice": {
+    "message": "Повідомлення"
+  },
+  "managerEmpty": {
+    "message": "Проєктів ще немає. Натисніть «Новий проєкт», щоб почати."
+  },
+  "changeIcon": {
+    "message": "Змінити іконку"
+  },
+  "focusWindow": {
+    "message": "Перейти до вікна"
+  },
+  "openProject": {
+    "message": "Відкрити проєкт"
+  },
+  "deleteProject": {
+    "message": "Видалити проєкт"
+  },
+  "chooseCustomColor": {
+    "message": "Вибрати свій колір"
+  },
+  "imageTooLarge": {
+    "message": "Зображення має бути менше 512 КБ"
+  },
+  "deleteMessage": {
+    "message": "«$NAME$» буде видалено назавжди. Відкрите вікно залишиться, але вже без проєкту.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "importFailed": {
+    "message": "Не вдалося імпортувати"
+  },
+  "importTitle": {
+    "message": "Імпорт"
+  },
+  "importNone": {
+    "message": "У цьому файлі немає жодного коректного проєкту."
+  },
+  "importDone_one": {
+    "message": "Імпортовано $COUNT$ проєкт.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importDone_few": {
+    "message": "Імпортовано $COUNT$ проєкти.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importDone_many": {
+    "message": "Імпортовано $COUNT$ проєктів.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importDone_other": {
+    "message": "Імпортовано $COUNT$ проєкту.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importReplaced_one": {
+    "message": "$COUNT$ проєкт із таким самим id замінено.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importReplaced_few": {
+    "message": "$COUNT$ проєкти з таким самим id замінено.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importReplaced_many": {
+    "message": "$COUNT$ проєктів із таким самим id замінено.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importReplaced_other": {
+    "message": "$COUNT$ проєкту з таким самим id замінено.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "invalidJson": {
+    "message": "Файл не є коректним JSON"
+  },
+  "invalidImport": {
+    "message": "Це не файл експорту Slate."
+  }
+}

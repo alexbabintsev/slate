@@ -1,6 +1,7 @@
 import { getProjectForWindow } from './window-tracker';
 import { getStorage } from '../storage/storage-factory';
 import { projectColorFromSeed } from '../models/project';
+import { t } from '../i18n';
 
 const DEFAULT_ICON_PATH = {
   16: 'assets/icons/icon16.png',
@@ -8,7 +9,7 @@ const DEFAULT_ICON_PATH = {
   48: 'assets/icons/icon48.png',
   128: 'assets/icons/icon128.png',
 };
-const DEFAULT_TITLE = 'Slate - No project';
+const defaultTitle = () => t('actionTitleNoProject');
 
 type WindowScopedIconDetails = chrome.action.TabIconDetails & { windowId?: number };
 type WindowScopedTitleDetails = chrome.action.TitleDetails & { windowId?: number };
@@ -79,19 +80,19 @@ export async function updateToolbarIcon(windowId: number): Promise<void> {
 
   const projectId = await getProjectForWindow(windowId);
   if (!projectId) {
-    await setActionTitle({ title: DEFAULT_TITLE, windowId });
+    await setActionTitle({ title: defaultTitle(), windowId });
     await setBadgeText({ text: '', windowId });
     return;
   }
 
   const project = await getStorage().getProject(projectId);
   if (!project) {
-    await setActionTitle({ title: DEFAULT_TITLE, windowId });
+    await setActionTitle({ title: defaultTitle(), windowId });
     await setBadgeText({ text: '', windowId });
     return;
   }
 
-  await setActionTitle({ title: `Slate - ${project.name}`, windowId });
+  await setActionTitle({ title: t('actionTitleProject', project.name), windowId });
   await setBadgeBackgroundColor({
     color: project.color ?? projectColorFromSeed(project.id || project.name),
     windowId,

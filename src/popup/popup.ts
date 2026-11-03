@@ -6,6 +6,7 @@ import {
 } from 'lucide';
 import type { Message, MessageResponse } from '../models/messages';
 import { projectColorFromSeed, type Project } from '../models/project';
+import { t, tCount, localizeDocument } from '../i18n';
 
 // Project icons are loaded lazily from the bundled curated lucide JSON.
 type LucideData = Array<[string, Record<string, string>]>;
@@ -117,7 +118,7 @@ function promptDialog(title: string): Promise<string | null> {
 }
 
 function tabLabel(count: number): string {
-  return count === 0 ? 'No tabs' : count === 1 ? '1 tab' : `${count} tabs`;
+  return tCount('tabs', count);
 }
 
 function projectIconColor(project: Project): string {
@@ -130,7 +131,15 @@ function applyProjectIconStyle(container: HTMLElement, project: Project): void {
   container.style.backgroundColor = projectIconColor(project);
 }
 
+function emptyState(text: string): HTMLElement {
+  const el = document.createElement('div');
+  el.className = 'empty-state';
+  el.textContent = text;
+  return el;
+}
+
 async function init() {
+  localizeDocument();
   document.getElementById('open-manager')!.appendChild(icon(Settings, 16));
   document.getElementById('btn-new-icon')!.appendChild(icon(Plus, 14));
   document.getElementById('btn-create-from-window')!.appendChild(icon(FolderPlus, 16));
@@ -152,7 +161,7 @@ async function init() {
     const btn = document.getElementById('btn-create-from-window')!;
     btn.style.display = 'flex';
     btn.addEventListener('click', async () => {
-      const name = await promptDialog('Project name');
+      const name = await promptDialog(t('projectName'));
       if (!name) return;
       const res = await send<Project>({ type: 'CREATE_PROJECT', name });
       if (!res.ok) return;
@@ -181,7 +190,7 @@ function renderHeader(project: Project | null) {
     tabsEl.textContent = tabLabel(project.tabs.length);
   } else {
     iconEl.appendChild(icon(Globe, 22));
-    nameEl.textContent = 'No Project';
+    nameEl.textContent = t('noProject');
     tabsEl.textContent = '';
   }
 }
@@ -190,10 +199,7 @@ async function renderList(projects: Project[], current: Project | null) {
   const container = document.getElementById('projects-container')!;
 
   if (projects.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        No projects yet.<br>Create one to get started.
-      </div>`;
+    container.replaceChildren(emptyState(t('emptyNoProjects')));
     return;
   }
 
@@ -209,7 +215,7 @@ async function renderList(projects: Project[], current: Project | null) {
   );
 
   if (filtered.length === 0) {
-    container.innerHTML = '<div class="empty-state">No other projects.</div>';
+    container.replaceChildren(emptyState(t('emptyNoOtherProjects')));
     return;
   }
 
@@ -244,7 +250,7 @@ async function renderList(projects: Project[], current: Project | null) {
     if (isOpen) {
       const dot = document.createElement('div');
       dot.className = 'dot-open';
-      dot.title = 'Window is open';
+      dot.title = t('windowIsOpen');
       right.appendChild(dot);
     }
     const arrow = document.createElement('div');
@@ -277,7 +283,7 @@ document.getElementById('open-manager')!.addEventListener('click', async () => {
 
 // New project button
 document.getElementById('btn-new-project')!.addEventListener('click', async () => {
-  const name = await promptDialog('Project name');
+  const name = await promptDialog(t('projectName'));
   if (!name) return;
   const res = await send<Project>({ type: 'CREATE_PROJECT', name });
   if (res.ok) {

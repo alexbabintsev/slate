@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projects</title>
+  <title data-i18n="projects">Projects</title>
   <link rel="stylesheet" href="manager.css">
 </head>
 <body>
@@ -11,24 +11,24 @@
 
     <header id="header">
       <div id="header-title">
-        <span>Projects</span>
+        <span data-i18n="projects">Projects</span>
       </div>
       <div id="header-actions">
-        <button id="btn-import" title="Import projects"></button>
-        <button id="btn-export" title="Export projects"></button>
+        <button id="btn-import" title="Import projects" data-i18n-title="importProjects"></button>
+        <button id="btn-export" title="Export projects" data-i18n-title="exportProjects"></button>
       </div>
     </header>
 
     <!-- Assign banner (shown only when current window has no project) -->
     <div id="assign-banner" style="display:none">
-      <span id="assign-banner-text">This window has no project</span>
-      <button id="btn-assign">Create project…</button>
+      <span id="assign-banner-text" data-i18n="windowHasNoProject">This window has no project</span>
+      <button id="btn-assign" data-i18n="createProjectEllipsis">Create project…</button>
     </div>
 
     <div id="new-project-wrap">
       <button id="btn-new">
         <span id="btn-new-icon"></span>
-        New Project
+        <span data-i18n="newProject">New Project</span>
       </button>
     </div>
 
@@ -43,24 +43,24 @@
     <div id="icon-dialog" class="dialog-overlay" style="display:none">
       <div class="dialog">
         <div class="dialog-header">
-          <span class="dialog-title">Choose icon</span>
+          <span class="dialog-title" data-i18n="chooseIcon">Choose icon</span>
           <button class="dialog-close" id="icon-dialog-close"></button>
         </div>
 
         <div id="project-color-picker">
-          <span class="color-picker-label">Color</span>
+          <span class="color-picker-label" data-i18n="color">Color</span>
           <div id="project-color-swatches"></div>
         </div>
 
         <div id="icon-tabs" class="icon-tabs">
-          <button class="icon-tab active" data-tab="lucide">Icons</button>
-          <button class="icon-tab" data-tab="upload">Upload</button>
-          <button id="btn-clear-icon" type="button">Clear icon</button>
+          <button class="icon-tab active" data-tab="lucide" data-i18n="icons">Icons</button>
+          <button class="icon-tab" data-tab="upload" data-i18n="upload">Upload</button>
+          <button id="btn-clear-icon" type="button"><span data-i18n="clearIcon">Clear icon</span></button>
         </div>
 
         <div id="icon-tab-lucide" class="icon-tab-panel">
           <div id="icon-search-wrap">
-            <input id="icon-search" type="text" placeholder="Search icons…" autocomplete="off">
+            <input id="icon-search" type="text" placeholder="Search icons…" data-i18n-placeholder="searchIcons" autocomplete="off">
           </div>
           <div id="lucide-grid" class="lucide-grid"></div>
         </div>
@@ -68,14 +68,14 @@
         <div id="icon-tab-upload" class="icon-tab-panel" style="display:none">
           <div id="upload-area">
             <span id="upload-area-icon"></span>
-            <span class="upload-label">Click or drag an image</span>
-            <span class="upload-hint">PNG, JPG, SVG, WebP - max 512 KB</span>
+            <span class="upload-label" data-i18n="uploadPrompt">Click or drag an image</span>
+            <span class="upload-hint" data-i18n="uploadHint">PNG, JPG, SVG, WebP - max 512 KB</span>
             <input type="file" id="icon-upload-input" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display:none">
           </div>
           <div id="upload-preview" style="display:none">
             <img id="upload-preview-img" alt="preview">
-            <button id="upload-use" class="btn-confirm">Use this image</button>
-            <button id="upload-clear" class="btn-ghost">Choose different</button>
+            <button id="upload-use" class="btn-confirm" data-i18n="useThisImage">Use this image</button>
+            <button id="upload-clear" class="btn-ghost" data-i18n="chooseDifferent">Choose different</button>
           </div>
         </div>
       </div>
@@ -85,12 +85,12 @@
     <div id="delete-dialog" class="dialog-overlay" style="display:none">
       <div class="dialog dialog-sm">
         <div class="dialog-header">
-          <span class="dialog-title">Delete project?</span>
+          <span class="dialog-title" data-i18n="deleteProjectQuestion">Delete project?</span>
         </div>
         <p id="delete-message" class="dialog-body"></p>
         <div class="dialog-footer">
-          <button id="delete-cancel" class="btn-cancel">Cancel</button>
-          <button id="delete-confirm" class="btn-danger">Delete</button>
+          <button id="delete-cancel" class="btn-cancel" data-i18n="cancel">Cancel</button>
+          <button id="delete-confirm" class="btn-danger" data-i18n="delete">Delete</button>
         </div>
       </div>
     </div>
@@ -99,10 +99,10 @@
     <div id="assign-dialog" class="dialog-overlay" style="display:none">
       <div class="dialog dialog-sm">
         <div class="dialog-header">
-          <span class="dialog-title">Assign window to project</span>
+          <span class="dialog-title" data-i18n="assignWindowTitle">Assign window to project</span>
           <button class="dialog-close" id="assign-dialog-close"></button>
         </div>
-        <p class="dialog-body">Choose which project this window belongs to:</p>
+        <p class="dialog-body" data-i18n="assignWindowBody">Choose which project this window belongs to:</p>
         <div id="assign-project-list" class="assign-list"></div>
       </div>
     </div>
@@ -113,15 +113,15 @@
     <div id="prompt-dialog" class="dialog-overlay" style="display:none">
       <div class="dialog dialog-sm">
         <div class="dialog-header">
-          <span class="dialog-title" id="prompt-title">Project name</span>
+          <span class="dialog-title" id="prompt-title" data-i18n="projectName">Project name</span>
         </div>
         <div class="dialog-body">
           <input id="prompt-input" type="text" autocomplete="off" spellcheck="false"
                  style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);font:inherit;outline:none">
         </div>
         <div class="dialog-footer">
-          <button id="prompt-cancel" class="btn-cancel">Cancel</button>
-          <button id="prompt-ok" class="btn-confirm">OK</button>
+          <button id="prompt-cancel" class="btn-cancel" data-i18n="cancel">Cancel</button>
+          <button id="prompt-ok" class="btn-confirm" data-i18n="ok">OK</button>
         </div>
       </div>
     </div>
@@ -130,11 +130,11 @@
     <div id="alert-dialog" class="dialog-overlay" style="display:none">
       <div class="dialog dialog-sm">
         <div class="dialog-header">
-          <span class="dialog-title" id="alert-title">Notice</span>
+          <span class="dialog-title" id="alert-title" data-i18n="notice">Notice</span>
         </div>
         <p id="alert-message" class="dialog-body"></p>
         <div class="dialog-footer">
-          <button id="alert-ok" class="btn-confirm">OK</button>
+          <button id="alert-ok" class="btn-confirm" data-i18n="ok">OK</button>
         </div>
       </div>
     </div>

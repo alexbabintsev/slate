@@ -9,6 +9,9 @@ import {
   type Project,
   type ProjectStore,
 } from '../models/project';
+import { t, tCount, localizeDocument } from '../i18n';
+
+localizeDocument();
 
 // ── Lucide helper ─────────────────────────────────────────
 type LucideData = Array<[string, Record<string, string>]>;
@@ -254,7 +257,7 @@ function promptDialog(title: string): Promise<string | null> {
   });
 }
 
-function alertDialog(message: string, title = 'Notice'): Promise<void> {
+function alertDialog(message: string, title = t('notice')): Promise<void> {
   return new Promise(resolve => {
     const overlay = document.getElementById('alert-dialog')!;
     const titleEl = document.getElementById('alert-title')!;
@@ -360,7 +363,10 @@ function renderBanner() {
 function renderProjects() {
   const list = document.getElementById('project-list')!;
   if (projects.length === 0) {
-    list.innerHTML = '<div class="empty-state">No projects yet.<br>Hit "New Project" to get started.</div>';
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.textContent = t('managerEmpty');
+    list.replaceChildren(empty);
     return;
   }
   list.innerHTML = '';
@@ -384,7 +390,7 @@ function makeCard(project: Project): HTMLElement {
   // Icon
   const cardIcon = document.createElement('div');
   cardIcon.className = 'card-icon';
-  cardIcon.title = 'Change icon';
+  cardIcon.title = t('changeIcon');
   applyProjectIconStyle(cardIcon, project);
   cardIcon.appendChild(renderIcon(project.icon, 18, project.name));
   const iconOverlay = document.createElement('div');
@@ -416,7 +422,7 @@ function makeCard(project: Project): HTMLElement {
   const meta = document.createElement('div');
   meta.className = 'card-meta';
   const tabCount = project.tabs.length;
-  meta.appendChild(document.createTextNode(`${tabCount} tab${tabCount !== 1 ? 's' : ''}`));
+  meta.appendChild(document.createTextNode(tCount('tabs', tabCount)));
 
   body.appendChild(nameInput);
   body.appendChild(meta);
@@ -426,7 +432,7 @@ function makeCard(project: Project): HTMLElement {
   if (isOpen) {
     const dot = document.createElement('span');
     dot.className = 'dot-open';
-    dot.title = 'Window is open';
+    dot.title = t('windowIsOpen');
     status.appendChild(dot);
   }
 
@@ -436,7 +442,7 @@ function makeCard(project: Project): HTMLElement {
 
   const openBtn = document.createElement('button');
   openBtn.className = 'card-btn';
-  openBtn.title = isOpen ? 'Focus window' : 'Open project';
+  openBtn.title = isOpen ? t('focusWindow') : t('openProject');
   openBtn.appendChild(svgEl(ExternalLink, 14));
   openBtn.addEventListener('click', async () => {
     await send({ type: 'OPEN_PROJECT', projectId: project.id });
@@ -445,7 +451,7 @@ function makeCard(project: Project): HTMLElement {
 
   const delBtn = document.createElement('button');
   delBtn.className = 'card-btn danger';
-  delBtn.title = 'Delete project';
+  delBtn.title = t('deleteProject');
   delBtn.appendChild(svgEl(Trash2, 14));
   delBtn.addEventListener('click', () => openDeleteDialog(project.id, project.name));
 
@@ -541,7 +547,7 @@ function renderColorSwatches() {
   customBtn.className = 'project-color-swatch custom'
     + (PROJECT_BADGE_COLORS.includes(activeColor as never) ? '' : ' active');
   customBtn.type = 'button';
-  customBtn.title = 'Choose custom color';
+  customBtn.title = t('chooseCustomColor');
   customBtn.textContent = '+';
   if (!PROJECT_BADGE_COLORS.includes(activeColor as never)) {
     customBtn.style.background = activeColor;
@@ -624,7 +630,7 @@ uploadInput.addEventListener('change', () => {
 });
 
 function handleUploadFile(file: File) {
-  if (file.size > 512 * 1024) { void alertDialog('Image must be under 512 KB'); return; }
+  if (file.size > 512 * 1024) { void alertDialog(t('imageTooLarge')); return; }
 
   const reader = new FileReader();
   reader.onload = () => {
@@ -668,7 +674,7 @@ async function applyIcon(iconVal: string) {
 function openDeleteDialog(projectId: string, name: string) {
   pendingDeleteId = projectId;
   document.getElementById('delete-message')!.textContent =
-    `"${name}" will be permanently deleted. Any open window will be unlinked.`;
+    t('deleteMessage', name);
   document.getElementById('delete-dialog')!.style.display = 'flex';
 }
 
@@ -685,7 +691,7 @@ document.getElementById('delete-confirm')!.addEventListener('click', async () =>
 
 // ── Assign dialog ─────────────────────────────────────────
 document.getElementById('btn-assign')!.addEventListener('click', async () => {
-  const name = await promptDialog('Project name');
+  const name = await promptDialog(t('projectName'));
   if (!name) return;
   const res = await send<Project>({ type: 'CREATE_PROJECT', name });
   if (!res.ok) return;
@@ -701,7 +707,7 @@ document.getElementById('assign-dialog')!.addEventListener('click', e => {
 
 // ── New project ───────────────────────────────────────────
 document.getElementById('btn-new')!.addEventListener('click', async () => {
-  const name = await promptDialog('Project name');
+  const name = await promptDialog(t('projectName'));
   if (!name) return;
   const res = await send<Project>({ type: 'CREATE_PROJECT', name });
   if (!res.ok) return;
@@ -735,17 +741,17 @@ document.getElementById('btn-import')!.addEventListener('click', () => {
     const res = await send<{ imported: number; replaced: number }>({ type: 'IMPORT_PROJECTS', store });
     await refresh();
     if (!res.ok) {
-      await alertDialog(res.error, 'Import failed');
+      // The worker's only import error is a file that is not a Slate export.
+      await alertDialog(t('invalidImport'), t('importFailed'));
     } else {
       const { imported: n, replaced } = res.data;
-      const plural = (k: number) => `${k} project${k === 1 ? '' : 's'}`;
       const msg = n === 0
-        ? 'No valid projects found in this file.'
-        : `Imported ${plural(n)}.` + (replaced > 0 ? ` ${plural(replaced)} with the same id replaced.` : '');
-      await alertDialog(msg, 'Import');
+        ? t('importNone')
+        : tCount('importDone', n) + (replaced > 0 ? ' ' + tCount('importReplaced', replaced) : '');
+      await alertDialog(msg, t('importTitle'));
     }
   } catch {
-    await alertDialog('Invalid JSON file');
+    await alertDialog(t('invalidJson'), t('importFailed'));
   }
   (e.target as HTMLInputElement).value = '';
 });

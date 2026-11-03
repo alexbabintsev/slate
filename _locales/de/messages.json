@@ -1,0 +1,218 @@
+{
+  "pluralLocale": {
+    "message": "de"
+  },
+  "extName": {
+    "message": "Slate - Ein Fenster pro Projekt"
+  },
+  "extDescription": {
+    "message": "Tab-Manager, der jedem Projekt ein eigenes Chrome-Fenster mit gespeicherten Tabs, Gruppen und angehefteten Tabs gibt."
+  },
+  "actionTitleNoProject": {
+    "message": "Slate - Kein Projekt"
+  },
+  "actionTitleProject": {
+    "message": "Slate - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "currentProject": {
+    "message": "Aktuelles Projekt"
+  },
+  "noProject": {
+    "message": "Kein Projekt"
+  },
+  "createFromWindow": {
+    "message": "Projekt aus diesem Fenster erstellen"
+  },
+  "newProject": {
+    "message": "Neues Projekt"
+  },
+  "manageProjects": {
+    "message": "Projekte verwalten"
+  },
+  "projectName": {
+    "message": "Projektname"
+  },
+  "cancel": {
+    "message": "Abbrechen"
+  },
+  "ok": {
+    "message": "OK"
+  },
+  "tabs_zero": {
+    "message": "Keine Tabs"
+  },
+  "tabs_one": {
+    "message": "$COUNT$ Tab",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "tabs_other": {
+    "message": "$COUNT$ Tabs",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "emptyNoProjects": {
+    "message": "Noch keine Projekte. Erstellen Sie Ihr erstes."
+  },
+  "emptyNoOtherProjects": {
+    "message": "Keine weiteren Projekte."
+  },
+  "windowIsOpen": {
+    "message": "Fenster ist geöffnet"
+  },
+  "projects": {
+    "message": "Projekte"
+  },
+  "importProjects": {
+    "message": "Projekte importieren"
+  },
+  "exportProjects": {
+    "message": "Projekte exportieren"
+  },
+  "windowHasNoProject": {
+    "message": "Dieses Fenster gehört zu keinem Projekt"
+  },
+  "createProjectEllipsis": {
+    "message": "Projekt erstellen…"
+  },
+  "chooseIcon": {
+    "message": "Symbol wählen"
+  },
+  "color": {
+    "message": "Farbe"
+  },
+  "icons": {
+    "message": "Symbole"
+  },
+  "upload": {
+    "message": "Hochladen"
+  },
+  "clearIcon": {
+    "message": "Symbol entfernen"
+  },
+  "searchIcons": {
+    "message": "Symbole suchen…"
+  },
+  "uploadPrompt": {
+    "message": "Klicken oder Bild hierher ziehen"
+  },
+  "uploadHint": {
+    "message": "PNG, JPG, SVG, WebP - max. 512 KB"
+  },
+  "useThisImage": {
+    "message": "Dieses Bild verwenden"
+  },
+  "chooseDifferent": {
+    "message": "Anderes wählen"
+  },
+  "deleteProjectQuestion": {
+    "message": "Projekt löschen?"
+  },
+  "delete": {
+    "message": "Löschen"
+  },
+  "assignWindowTitle": {
+    "message": "Fenster einem Projekt zuordnen"
+  },
+  "assignWindowBody": {
+    "message": "Wählen Sie das Projekt für dieses Fenster:"
+  },
+  "notice": {
+    "message": "Hinweis"
+  },
+  "managerEmpty": {
+    "message": "Noch keine Projekte. Klicken Sie auf „Neues Projekt“, um zu beginnen."
+  },
+  "changeIcon": {
+    "message": "Symbol ändern"
+  },
+  "focusWindow": {
+    "message": "Zum Fenster wechseln"
+  },
+  "openProject": {
+    "message": "Projekt öffnen"
+  },
+  "deleteProject": {
+    "message": "Projekt löschen"
+  },
+  "chooseCustomColor": {
+    "message": "Eigene Farbe wählen"
+  },
+  "imageTooLarge": {
+    "message": "Das Bild muss kleiner als 512 KB sein"
+  },
+  "deleteMessage": {
+    "message": "„$NAME$“ wird endgültig gelöscht. Ein geöffnetes Fenster bleibt offen, gehört dann aber zu keinem Projekt.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "importFailed": {
+    "message": "Import fehlgeschlagen"
+  },
+  "importTitle": {
+    "message": "Import"
+  },
+  "importNone": {
+    "message": "In dieser Datei wurden keine gültigen Projekte gefunden."
+  },
+  "importDone_one": {
+    "message": "$COUNT$ Projekt importiert.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importDone_other": {
+    "message": "$COUNT$ Projekte importiert.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importReplaced_one": {
+    "message": "$COUNT$ Projekt mit derselben ID wurde ersetzt.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importReplaced_other": {
+    "message": "$COUNT$ Projekte mit derselben ID wurden ersetzt.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "invalidJson": {
+    "message": "Ungültige JSON-Datei"
+  },
+  "invalidImport": {
+    "message": "Diese Datei ist kein Slate-Export."
+  }
+}

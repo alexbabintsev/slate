@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Slate - Window per Project",
+  "name": "__MSG_extName__",
   "version": "1.0.3",
-  "description": "Tab manager that gives every project its own Chrome window with saved tabs, groups, and pinned state. Switch contexts instantly.",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
   "author": "Alex Babintsev",
   "minimum_chrome_version": "119",
   "permissions": [
