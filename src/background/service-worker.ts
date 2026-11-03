@@ -18,6 +18,7 @@ import { createProject, ensureProjectColor } from '../models/project';
 import type { Message, MessageResponse } from '../models/messages';
 import { updateToolbarIcon } from './toolbar-icon';
 import { openWelcomeOnInstall } from './welcome';
+import { registerUninstallSurvey } from './uninstall-survey';
 import { recordInstall, recordProjectOpen } from '../review-prompt';
 import {
   sanitizeImportedStore,
@@ -382,6 +383,7 @@ chrome.runtime.onInstalled.addListener(details => {
   void runReconcile();
   void openWelcomeOnInstall(details);
   void recordInstall(details);
+  void registerUninstallSurvey();
 });
 
 // Message handler
