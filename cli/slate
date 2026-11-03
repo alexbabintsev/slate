@@ -34,13 +34,19 @@ case "$ACTION" in
   *) echo "error: unknown action '$ACTION' (expected: open, close, list)" >&2; exit 1 ;;
 esac
 
-# URL-encode project name (only handles common cases - spaces, &, =).
+# Percent-encode every byte outside the RFC 3986 unreserved set, so names with
+# #, +, %, ?, / or non-ASCII letters reach the extension unchanged.
 encode() {
-  local s="$1"
-  s="${s//&/%26}"
-  s="${s//=/%3D}"
-  s="${s// /%20}"
-  printf '%s' "$s"
+  local LC_ALL=C s="$1" out="" c i
+  for (( i = 0; i < ${#s}; i++ )); do
+    c="${s:i:1}"
+    case "$c" in
+      [a-zA-Z0-9.~_-]) out+="$c" ;;
+      # & 0xFF: bash 3.2 (macOS) sign-extends bytes above 0x7F.
+      *) out+=$(printf '%%%02X' $(( $(printf '%d' "'$c") & 0xFF ))) ;;
+    esac
+  done
+  printf '%s' "$out"
 }
 
 URL="chrome-extension://${SLATE_EXT_ID}/src/cli/cli.html?action=${ACTION}"
