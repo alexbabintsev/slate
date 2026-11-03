@@ -1,6 +1,31 @@
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://vshymanskyy.github.io/StandWithUkraine/)
+[![Made in Ukraine](https://img.shields.io/badge/made_in-Ukraine-ffd700.svg?labelColor=0057b7)](https://stand-with-ukraine.pp.ua)
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
+
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/keiaafjcddiababjlpgbfciohdebiggm?label=chrome%20web%20store)](https://chromewebstore.google.com/detail/slate-window-per-project/keiaafjcddiababjlpgbfciohdebiggm)
+[![Users](https://img.shields.io/chrome-web-store/users/keiaafjcddiababjlpgbfciohdebiggm)](https://chromewebstore.google.com/detail/slate-window-per-project/keiaafjcddiababjlpgbfciohdebiggm)
+[![Rating](https://img.shields.io/chrome-web-store/rating/keiaafjcddiababjlpgbfciohdebiggm)](https://chromewebstore.google.com/detail/slate-window-per-project/keiaafjcddiababjlpgbfciohdebiggm/reviews)
+[![CI](https://github.com/alexbabintsev/slate/actions/workflows/ci.yml/badge.svg)](https://github.com/alexbabintsev/slate/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/github/license/alexbabintsev/slate)](LICENSE)
+
 # Slate
 
+[![Slate - one Chrome window for every project](docs/images/banner.png)](https://chromewebstore.google.com/detail/slate-window-per-project/keiaafjcddiababjlpgbfciohdebiggm)
+
 Organize your work as projects in Chrome - each project gets its own window with its own saved tabs and tab groups. Switch contexts instantly. Never lose your place.
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/images/popup.png" width="250" alt="Toolbar popup: pick a project to open or focus its window"></td>
+    <td align="center"><img src="docs/images/panel.png" width="250" alt="Side panel: rename, recolor, reorder and delete projects"></td>
+    <td align="center"><img src="docs/images/icons.png" width="250" alt="Icon picker: curated Lucide icons, any color, or your own image"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Popup</b><br>Pick a project - its window opens or focuses</td>
+    <td align="center"><b>Side panel</b><br>Rename, recolor, reorder, delete</td>
+    <td align="center"><b>Icons</b><br>335 Lucide icons or your own image</td>
+  </tr>
+</table>
 
 ## Features
 
@@ -100,6 +125,7 @@ src/
   storage/                 chrome.storage.local adapter (serialized, atomic updates)
 assets/                    icons + Lucide JSON
 cli/slate                  optional bash CLI wrapper
+docs/images/               README images
 scripts/                   packaging and version sync
 tests/                     vitest suite with a fake chrome API
 ```
