@@ -289,5 +289,14 @@
   },
   "welcomePrivacyLink": {
     "message": "Privacy policy"
+  },
+  "reviewPromptText": {
+    "message": "Enjoying Slate? A short review helps other people find it"
+  },
+  "reviewPromptRate": {
+    "message": "Leave a review"
+  },
+  "reviewPromptLater": {
+    "message": "Not now"
   }
 }

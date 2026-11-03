@@ -395,3 +395,43 @@ body {
 .prompt-btn:hover { background: var(--bg-hover); }
 .prompt-btn.primary { background: var(--accent); color: #fff; }
 .prompt-btn.primary:hover { filter: brightness(1.05); }
+
+/* Review nudge: shown above the footer to people who use Slate a lot. */
+#review-banner {
+  margin: 0 8px 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+}
+
+#review-banner[hidden] { display: none; }
+
+#review-banner p {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.review-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.review-btn {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.review-btn:hover { background: var(--bg-hover); }
+.review-btn.primary { background: var(--accent); color: #fff; }
+.review-btn.primary:hover { background: var(--accent); filter: brightness(1.1); }

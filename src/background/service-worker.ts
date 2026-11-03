@@ -18,6 +18,7 @@ import { createProject, ensureProjectColor } from '../models/project';
 import type { Message, MessageResponse } from '../models/messages';
 import { updateToolbarIcon } from './toolbar-icon';
 import { openWelcomeOnInstall } from './welcome';
+import { recordInstall, recordProjectOpen } from '../review-prompt';
 import {
   sanitizeImportedStore,
   sanitizeIcon,
@@ -180,6 +181,7 @@ async function handleMessage(message: Message): Promise<MessageResponse> {
       case 'OPEN_PROJECT': {
         const windowId = await openProject(message.projectId);
         void updateToolbarIcon(windowId);
+        void recordProjectOpen();
         return { ok: true, data: { windowId } };
       }
 
@@ -379,6 +381,7 @@ chrome.runtime.onStartup.addListener(() => { void runReconcile(); });
 chrome.runtime.onInstalled.addListener(details => {
   void runReconcile();
   void openWelcomeOnInstall(details);
+  void recordInstall(details);
 });
 
 // Message handler

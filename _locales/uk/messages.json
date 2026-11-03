@@ -343,5 +343,14 @@
   },
   "welcomePrivacyLink": {
     "message": "Політика конфіденційності"
+  },
+  "reviewPromptText": {
+    "message": "Подобається Slate? Короткий відгук допоможе іншим його знайти"
+  },
+  "reviewPromptRate": {
+    "message": "Залишити відгук"
+  },
+  "reviewPromptLater": {
+    "message": "Не зараз"
   }
 }

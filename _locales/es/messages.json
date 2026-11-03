@@ -289,5 +289,14 @@
   },
   "welcomePrivacyLink": {
     "message": "Política de privacidad"
+  },
+  "reviewPromptText": {
+    "message": "¿Te gusta Slate? Una reseña breve ayuda a que otros lo encuentren"
+  },
+  "reviewPromptRate": {
+    "message": "Escribir una reseña"
+  },
+  "reviewPromptLater": {
+    "message": "Ahora no"
   }
 }
