@@ -11,16 +11,34 @@ async function setMap(map: WindowProjectMap): Promise<void> {
   await chrome.storage.session.set({ [SESSION_MAP_KEY]: map });
 }
 
-export async function associateWindow(windowId: number, projectId: string): Promise<void> {
-  const map = await getMap();
-  map[windowId] = projectId;
-  await setMap(map);
+// Every change is a read-modify-write of one session key. Run them one at a
+// time: two overlapping changes (two windows closing at once, a restore racing
+// a reconcile) would otherwise each write back their own copy and drop the
+// other's - leaving a link to a dead window that blocks reopening the project.
+let writeQueue: Promise<unknown> = Promise.resolve();
+
+function updateMap(fn: (map: WindowProjectMap) => void): Promise<void> {
+  const run = writeQueue.then(async () => {
+    const map = await getMap();
+    fn(map);
+    await setMap(map);
+  });
+  writeQueue = run.catch(() => undefined);
+  return run;
 }
 
-export async function dissociateWindow(windowId: number): Promise<void> {
-  const map = await getMap();
-  delete map[windowId];
-  await setMap(map);
+export function associateWindow(windowId: number, projectId: string): Promise<void> {
+  return updateMap(map => {
+    // A project has at most one window.
+    for (const [wid, pid] of Object.entries(map)) {
+      if (pid === projectId && Number(wid) !== windowId) delete map[Number(wid)];
+    }
+    map[windowId] = projectId;
+  });
+}
+
+export function dissociateWindow(windowId: number): Promise<void> {
+  return updateMap(map => { delete map[windowId]; });
 }
 
 export async function getProjectForWindow(windowId: number): Promise<string | null> {

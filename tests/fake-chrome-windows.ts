@@ -65,7 +65,10 @@ export function installFakeChrome(opts: FakeChromeOptions = {}) {
           : created;
         return { id: windowId, tabs: reported.map(t => ({ ...t })) };
       },
-      update: async () => ({}),
+      update: async (windowId: number) => {
+        if (inWindow(windowId).length === 0) throw new Error(`No window with id: ${windowId}.`);
+        return { id: windowId };
+      },
       remove: async () => {},
       getLastFocused: async () => ({ id: focusedWindowId }),
       getAll: async () => {

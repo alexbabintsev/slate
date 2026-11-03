@@ -25,11 +25,29 @@ import {
 } from './import-sanitizer';
 import { isRestorableUrl, hasFileAccess } from './restorable-url';
 
-export async function openProject(projectId: string): Promise<number> {
+// A double click, or the popup and the CLI at once, would otherwise both see
+// "no window yet" and open the project twice.
+const openingProjects = new Map<string, Promise<number>>();
+
+export function openProject(projectId: string): Promise<number> {
+  const inFlight = openingProjects.get(projectId);
+  if (inFlight) return inFlight;
+  const run = openProjectNow(projectId).finally(() => openingProjects.delete(projectId));
+  openingProjects.set(projectId, run);
+  return run;
+}
+
+async function openProjectNow(projectId: string): Promise<number> {
   const existingWindowId = await getWindowForProject(projectId);
   if (existingWindowId !== null) {
-    await chrome.windows.update(existingWindowId, { focused: true });
-    return existingWindowId;
+    try {
+      await chrome.windows.update(existingWindowId, { focused: true });
+      return existingWindowId;
+    } catch {
+      // The window is gone but its link survived (e.g. a missed onRemoved).
+      // Drop it and open the project afresh instead of failing forever.
+      await dissociateWindow(existingWindowId);
+    }
   }
 
   const storage = getStorage();
