@@ -14,7 +14,7 @@ import {
   getProjectForWindow,
   getWindowForProject,
 } from './window-tracker';
-import { createProject } from '../models/project';
+import { createProject, ensureProjectColor } from '../models/project';
 import type { Message, MessageResponse } from '../models/messages';
 import { updateToolbarIcon } from './toolbar-icon';
 import { sanitizeImportedStore } from './import-sanitizer';
@@ -162,11 +162,12 @@ async function handleMessage(message: Message): Promise<MessageResponse> {
       }
 
       case 'CREATE_PROJECT': {
-        const project = createProject(message.name, message.icon);
-        const store = await storage.getProjectStore();
-        const maxOrder = Math.max(0, ...Object.values(store.projects).map(p => p.sortOrder));
-        project.sortOrder = maxOrder + 1000;
-        await storage.saveProject(project);
+        const project = ensureProjectColor(createProject(message.name, message.icon));
+        await storage.updateProjectStore(store => {
+          const maxOrder = Math.max(0, ...Object.values(store.projects).map(p => p.sortOrder));
+          project.sortOrder = maxOrder + 1000;
+          store.projects[project.id] = project;
+        });
         return { ok: true, data: project };
       }
 
@@ -181,11 +182,11 @@ async function handleMessage(message: Message): Promise<MessageResponse> {
       }
 
       case 'REORDER_PROJECTS': {
-        const store = await storage.getProjectStore();
-        message.orderedIds.forEach((id, index) => {
-          if (store.projects[id]) store.projects[id].sortOrder = index * 1000;
+        await storage.updateProjectStore(store => {
+          message.orderedIds.forEach((id, index) => {
+            if (store.projects[id]) store.projects[id].sortOrder = index * 1000;
+          });
         });
-        await storage.saveProjectStore(store);
         return { ok: true, data: null };
       }
 
@@ -197,9 +198,9 @@ async function handleMessage(message: Message): Promise<MessageResponse> {
       case 'IMPORT_PROJECTS': {
         const cleaned = sanitizeImportedStore(message.store);
         if (!cleaned) return { ok: false, error: 'Invalid import file' };
-        const current = await storage.getProjectStore();
-        Object.assign(current.projects, cleaned);
-        await storage.saveProjectStore(current);
+        await storage.updateProjectStore(store => {
+          Object.assign(store.projects, cleaned);
+        });
         return { ok: true, data: null };
       }
 

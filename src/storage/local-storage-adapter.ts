@@ -5,7 +5,7 @@ import { DEFAULT_SETTINGS, ensureProjectColor } from '../models/project';
 const STORE_KEY = 'projectStore';
 
 function emptyStore(): ProjectStore {
-  return { projects: {}, settings: DEFAULT_SETTINGS };
+  return { projects: {}, settings: { ...DEFAULT_SETTINGS } };
 }
 
 export class LocalStorageAdapter implements IStorage {
@@ -28,6 +28,28 @@ export class LocalStorageAdapter implements IStorage {
 
   async saveProjectStore(store: ProjectStore): Promise<void> {
     return this.enqueue(() => chrome.storage.local.set({ [STORE_KEY]: store }));
+  }
+
+  async updateProjectStore(fn: (store: ProjectStore) => void): Promise<void> {
+    return this.enqueue(async () => {
+      const store = await this.getProjectStore();
+      fn(store);
+      await chrome.storage.local.set({ [STORE_KEY]: store });
+    });
+  }
+
+  async updateProject(id: string, fn: (project: Project) => Project | null): Promise<Project | null> {
+    return this.enqueue(async () => {
+      const store = await this.getProjectStore();
+      const current = store.projects[id];
+      if (!current) return null;
+      const next = fn(current);
+      if (!next) return null;
+      const saved = ensureProjectColor({ ...next, id, updatedAt: Date.now() });
+      store.projects[id] = saved;
+      await chrome.storage.local.set({ [STORE_KEY]: store });
+      return saved;
+    });
   }
 
   async getProject(id: string): Promise<Project | null> {

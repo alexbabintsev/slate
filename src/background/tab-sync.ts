@@ -87,29 +87,29 @@ export function normalizeGroups(
 }
 
 async function persist(projectId: string, tabs: chrome.tabs.Tab[], activeIndex: number, windowId: number, groupsOverride?: TabGroupState[]): Promise<void> {
-  const storage = getStorage();
-  const project = await storage.getProject(projectId);
-  if (!project) return;
-
   const rawTabStates = buildTabStates(tabs);
-
-  if (rawTabStates.length === 0 && project.tabs.length > 0) return;
-
   const rawGroups = groupsOverride ?? await buildTabGroupStates(windowId);
-
-  // Last line of defence against losing groups on close. Chrome tears a window
-  // down by removing its groups first, so a save can arrive with an empty group
-  // list while the tabs still carry their groupIds. Believing that list would
-  // persist groups:N->0. When the tabs disagree, keep what the project already
-  // has rather than recording a loss the user never asked for.
   const referenced = new Set(
     rawTabStates.map(t => t.groupId).filter((id): id is number => id !== undefined),
   );
-  if (rawGroups.length === 0 && referenced.size > 0 && (project.tabGroups?.length ?? 0) > 0) return;
 
-  const { tabs: tabStates, tabGroups } = normalizeGroups(rawTabStates, rawGroups);
+  // The checks run against the project as stored at write time, inside the
+  // storage queue: a copy read before the awaits above could be stale, and
+  // writing it back would revert a rename made meanwhile or resurrect a project
+  // deleted meanwhile (updateProject never recreates a missing one).
+  await getStorage().updateProject(projectId, project => {
+    if (rawTabStates.length === 0 && project.tabs.length > 0) return null;
 
-  await storage.saveProject({ ...project, tabs: tabStates, tabGroups, activeTabIndex: activeIndex });
+    // Last line of defence against losing groups on close. Chrome tears a window
+    // down by removing its groups first, so a save can arrive with an empty group
+    // list while the tabs still carry their groupIds. Believing that list would
+    // persist groups:N->0. When the tabs disagree, keep what the project already
+    // has rather than recording a loss the user never asked for.
+    if (rawGroups.length === 0 && referenced.size > 0 && (project.tabGroups?.length ?? 0) > 0) return null;
+
+    const { tabs: tabStates, tabGroups } = normalizeGroups(rawTabStates, rawGroups);
+    return { ...project, tabs: tabStates, tabGroups, activeTabIndex: activeIndex };
+  });
 }
 
 export async function saveProjectTabs(projectId: string, windowId: number): Promise<void> {
