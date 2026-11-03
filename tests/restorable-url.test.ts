@@ -29,3 +29,11 @@ describe('isRestorableUrl', () => {
     expect(isRestorableUrl('not a url', true)).toBe(false);
   });
 });
+
+describe('isRestorableUrl allowlist', () => {
+  it('rejects schemes that are not plain web pages', () => {
+    for (const url of ['javascript:alert(1)', 'data:text/html,x', 'blob:https://a/b', 'chrome-extension://abc/x.html', 'view-source:https://a']) {
+      expect(isRestorableUrl(url, true)).toBe(false);
+    }
+  });
+});

@@ -171,3 +171,53 @@ describe('sanitizeImportedStore', () => {
     expect(({} as Record<string, unknown>).polluted).toBeUndefined();
   });
 });
+
+describe('sanitizeProject hardening', () => {
+  it('drops tabs whose scheme could run or forge content', () => {
+    const p = sanitizeProject({
+      ...minimalProject,
+      tabs: [
+        { url: 'https://ok.example/' },
+        { url: 'file:///Users/me/doc.pdf' },
+        { url: 'javascript:alert(1)' },
+        { url: 'data:text/html,<h1>Sign in</h1>' },
+        { url: 'blob:https://x.example/uuid' },
+        { url: 'chrome-extension://abcdefghijklmnop/page.html' },
+      ],
+    });
+    expect(p!.tabs.map(t => t.url)).toEqual(['https://ok.example/', 'file:///Users/me/doc.pdf']);
+  });
+
+  it('accepts only well-formed icons', () => {
+    const icon = (v: unknown) => sanitizeProject({ ...minimalProject, icon: v })!.icon;
+    expect(icon('lucide:Folder')).toBe('lucide:Folder');
+    expect(icon('lucide:<svg>')).toBe('');
+    expect(icon('data:image/png;base64,iVBORw0KGgo=')).toBe('data:image/png;base64,iVBORw0KGgo=');
+    expect(icon('data:text/html;base64,PGgxPg==')).toBe('');
+    expect(icon('data:image/png;base64,' + 'A'.repeat(800 * 1024))).toBe('');
+    expect(icon('🚀')).toBe('🚀');
+  });
+
+  it('keeps only #rrggbb project colors', () => {
+    expect(sanitizeProject({ ...minimalProject, color: 'red; background:url(x)' })!.color).toBeUndefined();
+  });
+
+  it('keeps only http(s) favicons', () => {
+    const p = sanitizeProject({
+      ...minimalProject,
+      tabs: [{ url: 'https://a.com', faviconUrl: 'javascript:1' }, { url: 'https://b.com', faviconUrl: 'https://b.com/f.ico' }],
+    });
+    expect(p!.tabs.map(t => t.faviconUrl)).toEqual([undefined, 'https://b.com/f.ico']);
+  });
+
+  it('caps string lengths and list sizes', () => {
+    const p = sanitizeProject({
+      ...minimalProject,
+      name: 'n'.repeat(5000),
+      tabs: Array.from({ length: 600 }, (_, i) => ({ url: `https://x.com/${i}`, title: 't'.repeat(5000) })),
+    });
+    expect(p!.name).toHaveLength(200);
+    expect(p!.tabs).toHaveLength(500);
+    expect(p!.tabs[0].title).toHaveLength(1000);
+  });
+});
