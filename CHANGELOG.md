@@ -1,5 +1,48 @@
 # Changelog
 
+## [1.0.3] - 2026-11-03
+
+### Fixed
+- Project windows that Chrome reopens on its own are recognized again. The
+  window-to-project links live in session storage and are cleared on every
+  restart, and they were rebuilt only once, at browser startup. After a crash
+  Chrome restores windows only when you click **Restore** - after that point - so
+  they showed "no project" and opening the project made a duplicate window. Slate
+  now matches windows as they appear, and opening a project adopts an already
+  open window with its tabs instead of creating a second one.
+- Renaming, recoloring or changing the icon of a project in the side panel no
+  longer rolls back its tabs. The panel used to send its own, possibly hours-old,
+  copy of the whole project, overwriting tabs saved since - for good if the window
+  was closed. Only the edited fields are sent now, and the panel refreshes itself
+  when projects change.
+- Saves no longer overwrite each other. Reordering, importing, creating and
+  autosaving read the store outside the write queue, so a write landing in between
+  could be lost and a project deleted meanwhile could come back.
+- The active tab is kept after Chrome suspends the extension's background worker,
+  instead of resetting to the first tab, and lands on the right tab when some tabs
+  cannot be restored or pinned tabs move to the front.
+- Opening a project twice at once (double click, popup and CLI together) opens one
+  window, and a stale link to a closed window no longer blocks opening a project.
+- The CLI finds projects whose names contain `#`, `+`, `%`, `?`, `/` or non-Latin
+  letters.
+
+### Security
+- Websites can no longer control Slate. The CLI page was exposed to all sites,
+  which let any page open or close your projects by name. It is no longer
+  web-accessible, and the extension accepts messages only from its own pages.
+- Imported files are validated: only `http`, `https` and `file` tab URLs are
+  accepted, icons, colors and favicons are checked, and sizes are capped. Tabs are
+  reopened only with `http`/`https` (and `file` when allowed).
+
+### Changed
+- Import reports how many projects were imported and how many with the same id
+  were replaced, and shows an error instead of failing silently.
+- New `unlimitedStorage` permission, so projects with uploaded icons cannot hit the
+  10 MB storage cap and make saving fail. It shows no warning on install and data
+  still stays on your device.
+- Autosave reads less: no full storage read per tab event, and the tab cache is
+  refreshed only for changes a save records.
+
 ## [1.0.2] - 2026-09-03
 
 ### Fixed
