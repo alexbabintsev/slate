@@ -7,7 +7,7 @@ import {
 import type { Message, MessageResponse } from '../models/messages';
 import { projectColorFromSeed, type Project } from '../models/project';
 import { t, tCount, localizeDocument } from '../i18n';
-import { REVIEW_URL, takeReviewPrompt, snoozeReviewPrompt, finishReviewPrompt } from '../review-prompt';
+import { reviewUrl, takeReviewPrompt, snoozeReviewPrompt, finishReviewPrompt } from '../review-prompt';
 
 // Project icons are loaded lazily from the bundled curated lucide JSON.
 type LucideData = Array<[string, Record<string, string>]>;
@@ -177,12 +177,13 @@ async function init() {
 }
 
 async function setupReviewPrompt() {
-  if (!(await takeReviewPrompt())) return;
+  const url = reviewUrl();
+  if (url === null || !(await takeReviewPrompt())) return;
   const banner = document.getElementById('review-banner')!;
   banner.hidden = false;
   document.getElementById('review-rate')!.addEventListener('click', async () => {
     await finishReviewPrompt();
-    await chrome.tabs.create({ url: REVIEW_URL });
+    await chrome.tabs.create({ url });
     window.close();
   });
   document.getElementById('review-later')!.addEventListener('click', async () => {

@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.1] - 2026-11-06
+
+### Added
+- Ready for Microsoft Edge Add-ons. In Edge the welcome page explains Edge's
+  toolbar (the eye next to Slate, not a pin), and the review banner stays hidden
+  until Slate has an Edge Add-ons listing to link to, instead of sending people
+  to the Chrome Web Store.
+- The CLI finds Microsoft Edge too, and `SLATE_BROWSER` picks the browser when
+  more than one is installed.
+
 ## [1.1.0] - 2026-11-06
 
 ### Added

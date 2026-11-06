@@ -227,6 +227,9 @@
   "welcomePinText": {
     "message": "Chrome tucks new extensions behind the puzzle icon. Click it, then the pin next to Slate, so your projects are one click away"
   },
+  "welcomePinTextEdge": {
+    "message": "Edge tucks new extensions behind the puzzle icon. Click it, then the eye next to Slate, so your projects are one click away"
+  },
   "welcomePinned": {
     "message": "Pinned, you're all set"
   },

@@ -9,8 +9,16 @@
 // overwrite each other.
 
 import { isAdminInstall } from './install-type';
+import { isEdge } from './browser';
 
-export const REVIEW_URL = 'https://chromewebstore.google.com/detail/keiaafjcddiababjlpgbfciohdebiggm/reviews';
+export const CHROME_REVIEW_URL = 'https://chromewebstore.google.com/detail/keiaafjcddiababjlpgbfciohdebiggm/reviews';
+/** Set once the Edge Add-ons listing exists; until then Edge users are not asked. */
+export const EDGE_REVIEW_URL: string | null = null;
+
+/** Where "Leave a review" goes in this browser, or null when there is nowhere to send people. */
+export function reviewUrl(edge = isEdge()): string | null {
+  return edge ? EDGE_REVIEW_URL : CHROME_REVIEW_URL;
+}
 
 const DAY = 24 * 60 * 60 * 1000;
 export const MIN_OPENS = 15;
@@ -90,6 +98,7 @@ export function recordProjectOpen(): Promise<void> {
  * snoozes it. Never for admin installs: those people did not pick Slate.
  */
 export async function takeReviewPrompt(now = Date.now()): Promise<boolean> {
+  if (reviewUrl() === null) return false;
   if (await isAdminInstall()) return false;
   const data = await read();
   if (!decide(data, now)) return false;

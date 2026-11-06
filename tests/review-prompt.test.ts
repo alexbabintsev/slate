@@ -69,6 +69,17 @@ describe('review prompt', () => {
   });
 
   it('links to the Web Store reviews of the published extension', () => {
-    expect(rp.REVIEW_URL).toBe('https://chromewebstore.google.com/detail/keiaafjcddiababjlpgbfciohdebiggm/reviews');
+    expect(rp.reviewUrl(false)).toBe('https://chromewebstore.google.com/detail/keiaafjcddiababjlpgbfciohdebiggm/reviews');
+  });
+
+  it('does not ask in Edge until there is an Edge listing to send people to', async () => {
+    expect(rp.EDGE_REVIEW_URL).toBeNull();
+    vi.stubGlobal('navigator', { userAgent: 'Mozilla/5.0 Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0' });
+    try {
+      await openTimes(rp.MIN_OPENS);
+      expect(await rp.takeReviewPrompt(365 * DAY)).toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

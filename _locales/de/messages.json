@@ -227,6 +227,9 @@
   "welcomePinText": {
     "message": "Chrome versteckt neue Erweiterungen hinter dem Puzzle-Symbol. Klicke darauf und dann auf die Nadel neben Slate, damit deine Projekte nur einen Klick entfernt sind"
   },
+  "welcomePinTextEdge": {
+    "message": "Edge versteckt neue Erweiterungen hinter dem Puzzle-Symbol. Klicke darauf und dann auf das Auge neben Slate, damit deine Projekte nur einen Klick entfernt sind"
+  },
   "welcomePinned": {
     "message": "Angeheftet, alles bereit"
   },

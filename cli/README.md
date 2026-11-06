@@ -9,6 +9,8 @@ Optional shell wrapper to control the Slate Chrome extension from the command li
    - **Loaded unpacked (development):** open `chrome://extensions`, enable
      **Developer mode**, and copy the ID shown under Slate (it differs from the
      Web Store ID).
+   - **Microsoft Edge:** the ID shown under Slate in `edge://extensions` (Edge
+     Add-ons gives Slate a different ID).
 2. Set it in your shell rc:
    ```bash
    export SLATE_EXT_ID="keiaafjcddiababjlpgbfciohdebiggm"
@@ -17,6 +19,12 @@ Optional shell wrapper to control the Slate Chrome extension from the command li
    ```bash
    ln -s "$(pwd)/cli/slate" /usr/local/bin/slate
    ```
+
+   If you have more than one browser, point the wrapper at the one with Slate:
+   ```bash
+   export SLATE_BROWSER="/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"
+   ```
+   Without it the wrapper uses the first Chrome, Chromium or Edge it finds.
 
 ## Usage
 
@@ -34,4 +42,4 @@ then closes itself. No native messaging host required.
 
 ## Supported platforms
 
-macOS and Linux (Bash). Tested with Google Chrome and Chromium.
+macOS and Linux (Bash). Tested with Google Chrome and Chromium; Edge is supported through `SLATE_BROWSER` but not yet tested.

@@ -227,6 +227,9 @@
   "welcomePinText": {
     "message": "Chrome esconde las extensiones nuevas tras el icono de la pieza de puzle. Haz clic en él y luego en la chincheta junto a Slate para tener tus proyectos a un clic"
   },
+  "welcomePinTextEdge": {
+    "message": "Edge esconde las extensiones nuevas tras el icono de la pieza de puzle. Haz clic en él y luego en el ojo junto a Slate para tener tus proyectos a un clic"
+  },
   "welcomePinned": {
     "message": "Fijado, todo listo"
   },

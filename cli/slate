@@ -7,6 +7,8 @@
 #        export SLATE_EXT_ID="abcdefghijklmnopqrstuvwxyzabcdef"
 #   3. Symlink this script onto your PATH:
 #        ln -s "$PWD/cli/slate" /usr/local/bin/slate
+#   4. Optional: SLATE_BROWSER picks the browser binary (e.g. Microsoft Edge);
+#      by default the first Chrome, Chromium or Edge found is used.
 #
 # Usage:
 #   slate open "Work"
@@ -54,8 +56,13 @@ if [[ -n "$PROJECT" ]]; then
   URL="${URL}&project=$(encode "$PROJECT")"
 fi
 
-# Locate Chrome.
+# Locate the browser: SLATE_BROWSER if set, else Chrome, Chromium, then Edge.
 find_chrome() {
+  if [[ -n "${SLATE_BROWSER:-}" ]]; then
+    [[ -x "$SLATE_BROWSER" ]] && { echo "$SLATE_BROWSER"; return; }
+    command -v "$SLATE_BROWSER" 2>/dev/null && return
+    return 1
+  fi
   local candidates=(
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     "/usr/bin/google-chrome"
@@ -63,16 +70,27 @@ find_chrome() {
     "/usr/bin/chromium"
     "/usr/bin/chromium-browser"
     "/snap/bin/chromium"
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"
+    "/usr/bin/microsoft-edge"
+    "/usr/bin/microsoft-edge-stable"
   )
   for c in "${candidates[@]}"; do
     [[ -x "$c" ]] && { echo "$c"; return; }
   done
   command -v google-chrome 2>/dev/null && return
   command -v chromium 2>/dev/null && return
+  command -v microsoft-edge 2>/dev/null && return
   return 1
 }
 
-CHROME="$(find_chrome)" || { echo "error: Chrome/Chromium not found" >&2; exit 1; }
+if ! CHROME="$(find_chrome)"; then
+  if [[ -n "${SLATE_BROWSER:-}" ]]; then
+    echo "error: SLATE_BROWSER '$SLATE_BROWSER' is not an executable" >&2
+  else
+    echo "error: Chrome, Chromium or Edge not found (set SLATE_BROWSER)" >&2
+  fi
+  exit 1
+fi
 
 # Use --new-window so action runs without disturbing existing windows.
 # cli.html closes itself for open/close; for list it stays visible until user closes it.
