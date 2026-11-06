@@ -1,8 +1,28 @@
 # Changelog
 
-## [Unreleased]
+## [1.1.0] - 2026-11-06
+
+### Added
+- Slate speaks Ukrainian, German and Spanish. The popup, side panel, toolbar
+  icon, welcome page and the extension's name and description follow Chrome's
+  language, with English as the default. Tab and project counts use the right
+  plural forms for each language.
+- A welcome page opens once after a fresh install and walks through pinning
+  the icon, creating a first project and switching between projects. It notices
+  when the icon gets pinned. It never opens on updates.
+- After a week of use and 15 project opens, a small banner in the popup asks for
+  a Web Store review. "Not now" hides it for 30 days, a second "not now" (or
+  ignoring it five times) hides it for good, and so does leaving a review. The
+  counters stay on your device.
+- "Send feedback" in the side panel and on the welcome page opens a short form
+  on slate.babintsev.com for bug reports and ideas, with the installed version
+  filled in. GitHub issue templates cover the same for people with an account.
+- Uninstalling Slate opens an optional anonymous survey on slate.babintsev.com.
+  Only the version number is passed to it.
 
 ### Changed
+- When an administrator installs Slate by policy, the welcome page and the
+  review banner are skipped: the people on those devices did not pick it.
 - Storage moved to one record per project (schema 2). Projects used to share a
   single storage key, so every tab change rewrote all projects, uploaded icons
   included; now autosave writes only the project that changed. Existing data is
