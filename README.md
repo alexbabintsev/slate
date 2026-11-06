@@ -45,7 +45,7 @@ Organize your work as projects in Chrome - each project gets its own window with
 
 ### From the Chrome Web Store
 
-[Slate - Window per Project](https://chromewebstore.google.com/detail/slate-window-per-project/keiaafjcddiababjlpgbfciohdebiggm)
+[Slate: Project Tab Manager](https://chromewebstore.google.com/detail/slate-window-per-project/keiaafjcddiababjlpgbfciohdebiggm)
 
 ### From source (development)
 

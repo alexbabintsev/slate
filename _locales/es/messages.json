@@ -3,7 +3,7 @@
     "message": "es"
   },
   "extName": {
-    "message": "Slate - Una ventana por proyecto"
+    "message": "Slate: gestor de pestañas por proyecto"
   },
   "extDescription": {
     "message": "Gestor de pestañas que da a cada proyecto su propia ventana de Chrome con pestañas, grupos y pestañas fijadas guardados."

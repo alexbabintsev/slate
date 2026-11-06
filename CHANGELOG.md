@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2] - 2026-11-06
+
+### Changed
+- The extension is now called "Slate: Project Tab Manager" (and
+  the same in Ukrainian, German and Spanish), so people searching the stores
+  for a tab manager can find it.
+
 ## [1.1.1] - 2026-11-06
 
 ### Added

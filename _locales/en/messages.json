@@ -3,7 +3,7 @@
     "message": "en"
   },
   "extName": {
-    "message": "Slate - Window per Project"
+    "message": "Slate: Project Tab Manager"
   },
   "extDescription": {
     "message": "Tab manager that gives every project its own Chrome window with saved tabs, groups, and pinned state. Switch contexts instantly."

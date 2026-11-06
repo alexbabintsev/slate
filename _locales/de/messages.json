@@ -3,7 +3,7 @@
     "message": "de"
   },
   "extName": {
-    "message": "Slate - Ein Fenster pro Projekt"
+    "message": "Slate: Projekt-Tab-Manager"
   },
   "extDescription": {
     "message": "Tab-Manager, der jedem Projekt ein eigenes Chrome-Fenster mit gespeicherten Tabs, Gruppen und angehefteten Tabs gibt."
