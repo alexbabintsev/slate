@@ -14,6 +14,8 @@
 
 Organize your work as projects in Chrome - each project gets its own window with its own saved tabs and tab groups. Switch contexts instantly. Never lose your place.
 
+**Website:** [slate.babintsev.com](https://slate.babintsev.com/)
+
 <table>
   <tr>
     <td align="center"><img src="docs/images/popup.png" width="250" alt="Toolbar popup: pick a project to open or focus its window"></td>

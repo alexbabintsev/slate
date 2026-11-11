@@ -5,6 +5,7 @@
   "description": "__MSG_extDescription__",
   "default_locale": "en",
   "author": "Alex Babintsev",
+  "homepage_url": "https://slate.babintsev.com/",
   "minimum_chrome_version": "119",
   "permissions": [
     "tabs",
