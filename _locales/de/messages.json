@@ -307,5 +307,35 @@
   },
   "welcomeFeedbackLink": {
     "message": "Fehler melden oder Idee vorschlagen"
+  },
+  "newGroup": {
+    "message": "Neue Gruppe"
+  },
+  "groupName": {
+    "message": "Gruppenname"
+  },
+  "deleteGroup": {
+    "message": "Gruppe löschen"
+  },
+  "deleteGroupQuestion": {
+    "message": "Gruppe löschen?"
+  },
+  "deleteGroupMessage": {
+    "message": "„$NAME$“ wird gelöscht. Die Projekte bleiben erhalten, nur ohne Gruppe.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "moveToGroup": {
+    "message": "In Gruppe verschieben"
+  },
+  "noGroup": {
+    "message": "Ohne Gruppe"
+  },
+  "newGroupEllipsis": {
+    "message": "Neue Gruppe…"
   }
 }

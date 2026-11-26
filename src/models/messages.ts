@@ -1,4 +1,4 @@
-import type { Project, ProjectStore } from './project';
+import type { Project, ProjectGroup, ProjectStore } from './project';
 
 export type CLICommand =
   | { action: 'open'; projectName: string }
@@ -6,6 +6,8 @@ export type CLICommand =
   | { action: 'list' };
 
 export type ProjectMetaPatch = Partial<Pick<Project, 'name' | 'icon' | 'color'>>;
+
+export type GroupPatch = Partial<Pick<ProjectGroup, 'name' | 'collapsed'>>;
 
 export type Message =
   | { type: 'GET_CURRENT_PROJECT'; windowId: number }
@@ -17,7 +19,17 @@ export type Message =
   // Only the user-editable fields: the UI's copy of the tabs may be stale, and
   // sending a whole project used to overwrite newer autosaved tabs with it.
   | { type: 'UPDATE_PROJECT_META'; projectId: string; patch: ProjectMetaPatch }
-  | { type: 'REORDER_PROJECTS'; orderedIds: string[] }
+  // `moved` also puts that project into a group (null: out of every group),
+  // for a drag that crosses group boundaries.
+  | { type: 'REORDER_PROJECTS'; orderedIds: string[]; moved?: { projectId: string; groupId: string | null } }
+  | { type: 'GET_ALL_GROUPS' }
+  | { type: 'CREATE_GROUP'; name: string }
+  | { type: 'UPDATE_GROUP'; groupId: string; patch: GroupPatch }
+  // Deleting a group keeps its projects; they become ungrouped.
+  | { type: 'DELETE_GROUP'; groupId: string }
+  | { type: 'REORDER_GROUPS'; orderedIds: string[] }
+  // Moves the project to the end of the group (null: ungrouped).
+  | { type: 'SET_PROJECT_GROUP'; projectId: string; groupId: string | null }
   | { type: 'EXPORT_PROJECTS' }
   | { type: 'IMPORT_PROJECTS'; store: Partial<ProjectStore> }
   | { type: 'GET_WINDOW_FOR_PROJECT'; projectId: string }

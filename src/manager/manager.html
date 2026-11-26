@@ -14,6 +14,7 @@
         <span data-i18n="projects">Projects</span>
       </div>
       <div id="header-actions">
+        <button id="btn-new-group" title="New group" data-i18n-title="newGroup"></button>
         <button id="btn-import" title="Import projects" data-i18n-title="importProjects"></button>
         <button id="btn-export" title="Export projects" data-i18n-title="exportProjects"></button>
       </div>
@@ -86,7 +87,7 @@
     <div id="delete-dialog" class="dialog-overlay" style="display:none">
       <div class="dialog dialog-sm">
         <div class="dialog-header">
-          <span class="dialog-title" data-i18n="deleteProjectQuestion">Delete project?</span>
+          <span class="dialog-title" id="delete-title" data-i18n="deleteProjectQuestion">Delete project?</span>
         </div>
         <p id="delete-message" class="dialog-body"></p>
         <div class="dialog-footer">
@@ -105,6 +106,17 @@
         </div>
         <p class="dialog-body" data-i18n="assignWindowBody">Choose which project this window belongs to:</p>
         <div id="assign-project-list" class="assign-list"></div>
+      </div>
+    </div>
+
+    <!-- ── Move-to-group dialog ──────────────────────────── -->
+    <div id="group-dialog" class="dialog-overlay" style="display:none">
+      <div class="dialog dialog-sm">
+        <div class="dialog-header">
+          <span class="dialog-title" data-i18n="moveToGroup">Move to group</span>
+          <button class="dialog-close" id="group-dialog-close"></button>
+        </div>
+        <div id="group-dialog-list" class="assign-list"></div>
       </div>
     </div>
 

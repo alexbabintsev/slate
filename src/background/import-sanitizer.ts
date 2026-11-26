@@ -1,4 +1,4 @@
-import type { Project, ProjectStore, TabState, TabGroupState } from '../models/project';
+import type { Project, ProjectGroup, ProjectStore, TabState, TabGroupState } from '../models/project';
 import { isImportableUrl } from './restorable-url';
 
 const VALID_TAB_GROUP_COLORS = new Set<chrome.tabGroups.ColorEnum>([
@@ -13,6 +13,8 @@ export const IMPORT_LIMITS = {
   urlLength: 8192,
   tabsPerProject: 500,
   groupsPerProject: 100,
+  projectGroups: 100,
+  idLength: 128,
   // The icon upload allows 512 KB files; base64 inflates that by 4/3.
   dataIconLength: 700 * 1024,
   textIconLength: 16,
@@ -112,7 +114,37 @@ export function sanitizeProject(raw: unknown): Project | null {
     createdAt: typeof raw.createdAt === 'number' ? raw.createdAt : Date.now(),
     updatedAt: typeof raw.updatedAt === 'number' ? raw.updatedAt : Date.now(),
     sortOrder: typeof raw.sortOrder === 'number' ? raw.sortOrder : Date.now(),
+    ...(isId(raw.groupId) && { groupId: raw.groupId }),
   };
+}
+
+function isId(v: unknown): v is string {
+  return typeof v === 'string' && v.length > 0 && v.length <= IMPORT_LIMITS.idLength;
+}
+
+export function sanitizeProjectGroup(raw: unknown): ProjectGroup | null {
+  if (!isObject(raw) || !isId(raw.id)) return null;
+  const name = sanitizeProjectName(raw.name);
+  if (!name) return null;
+  return {
+    id: raw.id,
+    name,
+    collapsed: !!raw.collapsed,
+    sortOrder: typeof raw.sortOrder === 'number' ? raw.sortOrder : Date.now(),
+  };
+}
+
+/** The valid project groups of an import file; an empty record when it has none. */
+export function sanitizeImportedGroups(
+  store: Partial<ProjectStore> | undefined,
+): Record<string, ProjectGroup> {
+  const out: Record<string, ProjectGroup> = Object.create(null);
+  if (!isObject(store) || !isObject(store.groups)) return out;
+  for (const [id, raw] of Object.entries(store.groups).slice(0, IMPORT_LIMITS.projectGroups)) {
+    const g = sanitizeProjectGroup(raw);
+    if (g && g.id === id) out[id] = g;
+  }
+  return out;
 }
 
 export function sanitizeImportedStore(

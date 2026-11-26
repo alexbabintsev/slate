@@ -361,5 +361,35 @@
   },
   "welcomeFeedbackLink": {
     "message": "Повідомити про помилку чи запропонувати ідею"
+  },
+  "newGroup": {
+    "message": "Нова група"
+  },
+  "groupName": {
+    "message": "Назва групи"
+  },
+  "deleteGroup": {
+    "message": "Видалити групу"
+  },
+  "deleteGroupQuestion": {
+    "message": "Видалити групу?"
+  },
+  "deleteGroupMessage": {
+    "message": "«$NAME$» буде видалено. Проєкти залишаться, просто без групи.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "moveToGroup": {
+    "message": "Перемістити в групу"
+  },
+  "noGroup": {
+    "message": "Без групи"
+  },
+  "newGroupEllipsis": {
+    "message": "Нова група…"
   }
 }

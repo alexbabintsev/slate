@@ -1,11 +1,11 @@
 import {
   Settings,
   Globe,
-  ChevronRight, Plus, FolderPlus,
+  ChevronRight, ChevronDown, Plus, FolderPlus,
   type IconNode,
 } from 'lucide';
 import type { Message, MessageResponse } from '../models/messages';
-import { projectColorFromSeed, type Project } from '../models/project';
+import { projectColorFromSeed, type Project, type ProjectGroup } from '../models/project';
 import { t, tCount, localizeDocument } from '../i18n';
 import { reviewUrl, takeReviewPrompt, snoozeReviewPrompt, finishReviewPrompt } from '../review-prompt';
 
@@ -148,14 +148,16 @@ async function init() {
   const win = await chrome.windows.getCurrent();
   const windowId = win.id!;
 
-  const [currentRes, allRes] = await Promise.all([
+  const [currentRes, allRes, groupsRes] = await Promise.all([
     send<Project | null>({ type: 'GET_CURRENT_PROJECT', windowId }),
     send<Project[]>({ type: 'GET_ALL_PROJECTS' }),
+    send<ProjectGroup[]>({ type: 'GET_ALL_GROUPS' }),
     loadAllIcons(),
   ]);
 
   const currentProject = currentRes.ok ? currentRes.data : null;
   const allProjects = allRes.ok ? allRes.data : [];
+  const groups = groupsRes.ok ? groupsRes.data : [];
 
   // Show "create from window" button only when no project is assigned
   if (!currentProject) {
@@ -172,7 +174,7 @@ async function init() {
   }
 
   renderHeader(currentProject);
-  await renderList(allProjects, currentProject);
+  await renderList(allProjects, groups, currentProject);
   void setupReviewPrompt();
 }
 
@@ -213,7 +215,7 @@ function renderHeader(project: Project | null) {
   }
 }
 
-async function renderList(projects: Project[], current: Project | null) {
+async function renderList(projects: Project[], groups: ProjectGroup[], current: Project | null) {
   const container = document.getElementById('projects-container')!;
 
   if (projects.length === 0) {
@@ -239,57 +241,98 @@ async function renderList(projects: Project[], current: Project | null) {
 
   container.innerHTML = '';
 
+  const known = new Set(groups.map(g => g.id));
+  const groupOf = (p: Project) => (p.groupId && known.has(p.groupId) ? p.groupId : null);
+
   for (const project of filtered) {
-    const isOpen = openSet.has(project.id);
-
-    const item = document.createElement('div');
-    item.className = 'project-item';
-    item.setAttribute('role', 'button');
-    item.setAttribute('tabindex', '0');
-
-    const projectIconEl = document.createElement('div');
-    projectIconEl.className = 'project-icon';
-    applyProjectIconStyle(projectIconEl, project);
-    projectIconEl.appendChild(renderProjectIcon(project.icon, 16, project.name));
-
-    const body = document.createElement('div');
-    body.className = 'project-body';
-    const nameEl = document.createElement('div');
-    nameEl.className = 'project-name';
-    nameEl.textContent = project.name;
-    const metaEl = document.createElement('div');
-    metaEl.className = 'project-meta';
-    metaEl.textContent = tabLabel(project.tabs.length);
-    body.appendChild(nameEl);
-    body.appendChild(metaEl);
-
-    const right = document.createElement('div');
-    right.className = 'project-right';
-    if (isOpen) {
-      const dot = document.createElement('div');
-      dot.className = 'dot-open';
-      dot.title = t('windowIsOpen');
-      right.appendChild(dot);
-    }
-    const arrow = document.createElement('div');
-    arrow.className = 'project-arrow';
-    arrow.appendChild(icon(ChevronRight, 14));
-    right.appendChild(arrow);
-
-    item.appendChild(projectIconEl);
-    item.appendChild(body);
-    item.appendChild(right);
-
-    const activate = async () => {
-      await send({ type: 'OPEN_PROJECT', projectId: project.id });
-      window.close();
-    };
-
-    item.addEventListener('click', activate);
-    item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') activate(); });
-
-    container.appendChild(item);
+    if (groupOf(project) === null) container.appendChild(makeItem(project, openSet.has(project.id)));
   }
+  for (const group of groups) {
+    const members = filtered.filter(p => groupOf(p) === group.id);
+    // A group holding only the current project has nothing to switch to.
+    if (members.length === 0) continue;
+    container.appendChild(makeGroup(group, members, openSet));
+  }
+}
+
+function makeGroup(group: ProjectGroup, members: Project[], openSet: Set<string>): HTMLElement {
+  const section = document.createElement('div');
+  section.className = 'group' + (group.collapsed ? ' collapsed' : '');
+
+  const header = document.createElement('button');
+  header.className = 'group-header';
+  header.setAttribute('aria-expanded', String(!group.collapsed));
+  const chevron = icon(ChevronDown, 12);
+  chevron.classList.add('group-chevron');
+  const name = document.createElement('span');
+  name.className = 'group-name';
+  name.textContent = group.name;
+  const count = document.createElement('span');
+  count.className = 'group-count';
+  count.textContent = String(members.length);
+  header.append(chevron, name, count);
+  header.addEventListener('click', () => {
+    group.collapsed = !group.collapsed;
+    section.classList.toggle('collapsed', group.collapsed);
+    header.setAttribute('aria-expanded', String(!group.collapsed));
+    void send({ type: 'UPDATE_GROUP', groupId: group.id, patch: { collapsed: group.collapsed } });
+  });
+
+  const body = document.createElement('div');
+  body.className = 'group-body';
+  for (const p of members) body.appendChild(makeItem(p, openSet.has(p.id)));
+
+  section.append(header, body);
+  return section;
+}
+
+function makeItem(project: Project, isOpen: boolean): HTMLElement {
+  const item = document.createElement('div');
+  item.className = 'project-item';
+  item.setAttribute('role', 'button');
+  item.setAttribute('tabindex', '0');
+
+  const projectIconEl = document.createElement('div');
+  projectIconEl.className = 'project-icon';
+  applyProjectIconStyle(projectIconEl, project);
+  projectIconEl.appendChild(renderProjectIcon(project.icon, 16, project.name));
+
+  const body = document.createElement('div');
+  body.className = 'project-body';
+  const nameEl = document.createElement('div');
+  nameEl.className = 'project-name';
+  nameEl.textContent = project.name;
+  const metaEl = document.createElement('div');
+  metaEl.className = 'project-meta';
+  metaEl.textContent = tabLabel(project.tabs.length);
+  body.appendChild(nameEl);
+  body.appendChild(metaEl);
+
+  const right = document.createElement('div');
+  right.className = 'project-right';
+  if (isOpen) {
+    const dot = document.createElement('div');
+    dot.className = 'dot-open';
+    dot.title = t('windowIsOpen');
+    right.appendChild(dot);
+  }
+  const arrow = document.createElement('div');
+  arrow.className = 'project-arrow';
+  arrow.appendChild(icon(ChevronRight, 14));
+  right.appendChild(arrow);
+
+  item.appendChild(projectIconEl);
+  item.appendChild(body);
+  item.appendChild(right);
+
+  const activate = async () => {
+    await send({ type: 'OPEN_PROJECT', projectId: project.id });
+    window.close();
+  };
+
+  item.addEventListener('click', activate);
+  item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') activate(); });
+  return item;
 }
 
 // Manager button - open as side panel

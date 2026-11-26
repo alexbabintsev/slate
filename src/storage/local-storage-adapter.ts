@@ -1,5 +1,5 @@
 import type { IStorage } from './storage-interface';
-import type { AppSettings, Project, ProjectStore, Tombstone } from '../models/project';
+import type { AppSettings, Project, ProjectGroup, ProjectStore, Tombstone } from '../models/project';
 import { DEFAULT_SETTINGS, ensureProjectColor } from '../models/project';
 
 /*
@@ -8,6 +8,7 @@ import { DEFAULT_SETTINGS, ensureProjectColor } from '../models/project';
  *   schemaVersion      2
  *   deviceId           random id of this installation
  *   settings           AppSettings
+ *   groups             Record<id, ProjectGroup> (absent until the first group)
  *   project:<id>       one Project per key
  *   tombstone:<id>     { id, deletedAt, deletedBy } for deleted projects
  *
@@ -21,6 +22,7 @@ export const SCHEMA_VERSION = 2;
 const SCHEMA_KEY = 'schemaVersion';
 const DEVICE_KEY = 'deviceId';
 const SETTINGS_KEY = 'settings';
+const GROUPS_KEY = 'groups';
 const LEGACY_KEY = 'projectStore';
 const PROJECT_PREFIX = 'project:';
 const TOMBSTONE_PREFIX = 'tombstone:';
@@ -32,6 +34,7 @@ type Snapshot = {
   projects: Record<string, Project>;
   tombstones: Record<string, Tombstone>;
   settings: AppSettings;
+  groups: Record<string, ProjectGroup>;
 };
 
 function withDefaults(settings: unknown): AppSettings {
@@ -131,7 +134,12 @@ export class LocalStorageAdapter implements IStorage {
       const id = key.slice(PROJECT_PREFIX.length);
       if (isLive(value as Project, tombstones[id])) projects[id] = value as Project;
     }
-    return { projects, tombstones, settings: withDefaults(all[SETTINGS_KEY]) };
+    return {
+      projects,
+      tombstones,
+      settings: withDefaults(all[SETTINGS_KEY]),
+      groups: (all[GROUPS_KEY] as Record<string, ProjectGroup> | undefined) ?? {},
+    };
   }
 
   /** Write the difference between `before` and `after`: changed projects, deletions, settings. */
@@ -155,6 +163,10 @@ export class LocalStorageAdapter implements IStorage {
     if (JSON.stringify(withDefaults(after.settings)) !== JSON.stringify(before.settings)) {
       writes[SETTINGS_KEY] = withDefaults(after.settings);
     }
+    // Groups are few and small, so they share one key, written whole.
+    if (after.groups && JSON.stringify(after.groups) !== JSON.stringify(before.groups)) {
+      writes[GROUPS_KEY] = after.groups;
+    }
 
     if (Object.keys(writes).length > 0) await local.set(writes);
     if (restored.length + deleted.length > 0) await local.remove([...restored, ...deleted]);
@@ -166,8 +178,8 @@ export class LocalStorageAdapter implements IStorage {
 
   async getProjectStore(): Promise<ProjectStore> {
     await this.ensureReady();
-    const { projects, settings } = await this.readSnapshot();
-    return { projects, settings };
+    const { projects, settings, groups } = await this.readSnapshot();
+    return { projects, settings, groups };
   }
 
   async saveProjectStore(store: ProjectStore): Promise<void> {
@@ -177,7 +189,11 @@ export class LocalStorageAdapter implements IStorage {
   async updateProjectStore(fn: (store: ProjectStore) => void): Promise<void> {
     return this.enqueue(async () => {
       const before = await this.readSnapshot();
-      const draft: ProjectStore = structuredClone({ projects: before.projects, settings: before.settings });
+      const draft: ProjectStore = structuredClone({
+        projects: before.projects,
+        settings: before.settings,
+        groups: before.groups,
+      });
       fn(draft);
       await this.writeDiff(before, draft);
     });

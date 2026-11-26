@@ -3,7 +3,10 @@ import type { AppSettings, Project, ProjectStore, Tombstone } from '../models/pr
 export interface IStorage {
   /** Every live project plus settings, assembled from the per-project records. */
   getProjectStore(): Promise<ProjectStore>;
-  /** Replace all projects and settings; projects missing from `store` are deleted. */
+  /**
+   * Replace all projects and settings; projects missing from `store` are
+   * deleted. Groups are replaced too when `store.groups` is present.
+   */
   saveProjectStore(store: ProjectStore): Promise<void>;
   /**
    * Read-modify-write the whole store atomically with respect to every other

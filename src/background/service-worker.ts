@@ -14,7 +14,8 @@ import {
   getProjectForWindow,
   getWindowForProject,
 } from './window-tracker';
-import { createProject, ensureProjectColor } from '../models/project';
+import { createGroup, createProject, ensureProjectColor, sortedGroups } from '../models/project';
+import type { Project, ProjectGroup } from '../models/project';
 import type { Message, MessageResponse } from '../models/messages';
 import { updateToolbarIcon } from './toolbar-icon';
 import { openWelcomeOnInstall } from './welcome';
@@ -25,6 +26,7 @@ import {
   sanitizeIcon,
   sanitizeProjectName,
   sanitizeProjectColor,
+  sanitizeImportedGroups,
 } from './import-sanitizer';
 import { isRestorableUrl, hasFileAccess } from './restorable-url';
 
@@ -154,6 +156,11 @@ async function closeProject(projectId: string): Promise<void> {
   }
 }
 
+function setGroup(project: Project, groupId: string | null): void {
+  if (groupId === null) delete project.groupId;
+  else project.groupId = groupId;
+}
+
 async function handleMessage(message: Message): Promise<MessageResponse> {
   const storage = getStorage();
 
@@ -214,11 +221,90 @@ async function handleMessage(message: Message): Promise<MessageResponse> {
       }
 
       case 'REORDER_PROJECTS': {
+        const { moved } = message;
+        let unknownGroup = false as boolean;
         await storage.updateProjectStore(store => {
+          if (moved) {
+            unknownGroup = moved.groupId !== null && !store.groups?.[moved.groupId];
+            if (unknownGroup) return;
+            const project = store.projects[moved.projectId];
+            if (project) setGroup(project, moved.groupId);
+          }
           message.orderedIds.forEach((id, index) => {
             if (store.projects[id]) store.projects[id].sortOrder = index * 1000;
           });
         });
+        if (unknownGroup) return { ok: false, error: 'Group not found' };
+        return { ok: true, data: null };
+      }
+
+      case 'GET_ALL_GROUPS': {
+        const store = await storage.getProjectStore();
+        return { ok: true, data: sortedGroups(store.groups) };
+      }
+
+      case 'CREATE_GROUP': {
+        const name = sanitizeProjectName(message.name);
+        if (!name) return { ok: false, error: 'Group name is required' };
+        const group = createGroup(name);
+        await storage.updateProjectStore(store => {
+          store.groups ??= {};
+          group.sortOrder = Math.max(0, ...Object.values(store.groups).map(g => g.sortOrder)) + 1000;
+          store.groups[group.id] = group;
+        });
+        return { ok: true, data: group };
+      }
+
+      case 'UPDATE_GROUP': {
+        const { patch } = message;
+        const name = patch.name !== undefined ? sanitizeProjectName(patch.name) : undefined;
+        if (name === null) return { ok: false, error: 'Group name is required' };
+        let updated = null as ProjectGroup | null;
+        await storage.updateProjectStore(store => {
+          const group = store.groups?.[message.groupId];
+          if (!group) return;
+          if (name !== undefined) group.name = name;
+          if (patch.collapsed !== undefined) group.collapsed = !!patch.collapsed;
+          updated = group;
+        });
+        if (!updated) return { ok: false, error: 'Group not found' };
+        return { ok: true, data: updated };
+      }
+
+      case 'DELETE_GROUP': {
+        await storage.updateProjectStore(store => {
+          if (!store.groups?.[message.groupId]) return;
+          delete store.groups[message.groupId];
+          for (const project of Object.values(store.projects)) {
+            if (project.groupId === message.groupId) setGroup(project, null);
+          }
+        });
+        return { ok: true, data: null };
+      }
+
+      case 'REORDER_GROUPS': {
+        await storage.updateProjectStore(store => {
+          message.orderedIds.forEach((id, index) => {
+            const group = store.groups?.[id];
+            if (group) group.sortOrder = index * 1000;
+          });
+        });
+        return { ok: true, data: null };
+      }
+
+      case 'SET_PROJECT_GROUP': {
+        const { groupId } = message;
+        let result = 'ok' as 'ok' | 'no-project' | 'no-group';
+        await storage.updateProjectStore(store => {
+          const project = store.projects[message.projectId];
+          if (!project) { result = 'no-project'; return; }
+          if (groupId !== null && !store.groups?.[groupId]) { result = 'no-group'; return; }
+          if ((project.groupId ?? null) === groupId) return;
+          setGroup(project, groupId);
+          project.sortOrder = Math.max(0, ...Object.values(store.projects).map(p => p.sortOrder)) + 1000;
+        });
+        if (result === 'no-project') return { ok: false, error: 'Project not found' };
+        if (result === 'no-group') return { ok: false, error: 'Group not found' };
         return { ok: true, data: null };
       }
 
@@ -230,9 +316,15 @@ async function handleMessage(message: Message): Promise<MessageResponse> {
       case 'IMPORT_PROJECTS': {
         const cleaned = sanitizeImportedStore(message.store);
         if (!cleaned) return { ok: false, error: 'Invalid import file' };
+        const groups = sanitizeImportedGroups(message.store);
         let replaced = 0;
         await storage.updateProjectStore(store => {
           replaced = Object.keys(cleaned).filter(id => id in store.projects).length;
+          store.groups = { ...store.groups, ...groups };
+          // A project whose group came neither with the file nor exists here is ungrouped.
+          for (const project of Object.values(cleaned)) {
+            if (project.groupId && !store.groups[project.groupId]) delete project.groupId;
+          }
           Object.assign(store.projects, cleaned);
         });
         return { ok: true, data: { imported: Object.keys(cleaned).length, replaced } };

@@ -1,5 +1,6 @@
 import {
   Layers, Upload, Download, Plus, ExternalLink, Trash2, X, GripVertical, Image, Pencil,
+  ChevronDown, Folder, FolderInput, FolderPlus, Check,
   type IconNode,
 } from 'lucide';
 import type { Message, MessageResponse } from '../models/messages';
@@ -7,6 +8,7 @@ import {
   PROJECT_BADGE_COLORS,
   projectColorFromSeed,
   type Project,
+  type ProjectGroup,
   type ProjectStore,
 } from '../models/project';
 import { t, tCount, localizeDocument } from '../i18n';
@@ -288,13 +290,17 @@ let openIds = new Set<string>();
 let currentWindowId = 0;
 let currentProjectId: string | null = null;
 let pendingIconId: string | null = null;
-let pendingDeleteId: string | null = null;
-let dragSrcId: string | null = null;
+let groups: ProjectGroup[] = [];
+let pendingDelete: { kind: 'project' | 'group'; id: string } | null = null;
+let pendingGroupProjectId: string | null = null;
+let drag: { kind: 'project' | 'group'; id: string } | null = null;
 let uploadDataUrl: string | null = null;
 
 // ── Boot static icons ─────────────────────────────────────
 document.getElementById('btn-new-icon')!.appendChild(svgEl(Plus, 14));
+document.getElementById('btn-new-group')!.appendChild(svgEl(FolderPlus, 15));
 document.getElementById('btn-import')!.appendChild(svgEl(Download, 15));
+document.getElementById('group-dialog-close')!.appendChild(svgEl(X, 14));
 document.getElementById('btn-export')!.appendChild(svgEl(Upload, 15));
 document.getElementById('icon-dialog-close')!.appendChild(svgEl(X, 14));
 document.getElementById('btn-clear-icon')!.prepend(svgEl(X, 12));
@@ -331,12 +337,14 @@ async function loadAll() {
   const win = await chrome.windows.getCurrent();
   currentWindowId = win.id!;
 
-  const [allRes, currentRes] = await Promise.all([
+  const [allRes, currentRes, groupsRes] = await Promise.all([
     send<Project[]>({ type: 'GET_ALL_PROJECTS' }),
     send<Project | null>({ type: 'GET_CURRENT_PROJECT', windowId: currentWindowId }),
+    send<ProjectGroup[]>({ type: 'GET_ALL_GROUPS' }),
   ]);
 
   projects = allRes.ok ? allRes.data : [];
+  groups = groupsRes.ok ? groupsRes.data : [];
   currentProjectId = currentRes.ok && currentRes.data ? currentRes.data.id : null;
 
   const checks = await Promise.all(
@@ -362,9 +370,15 @@ function renderBanner() {
   }
 }
 
+/** The project's group, or null when it has none or its group is gone. */
+function groupOf(project: Project): string | null {
+  const id = project.groupId;
+  return id && groups.some(g => g.id === id) ? id : null;
+}
+
 function renderProjects() {
   const list = document.getElementById('project-list')!;
-  if (projects.length === 0) {
+  if (projects.length === 0 && groups.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'empty-state';
     empty.textContent = t('managerEmpty');
@@ -372,7 +386,94 @@ function renderProjects() {
     return;
   }
   list.innerHTML = '';
-  for (const p of projects) list.appendChild(makeCard(p));
+
+  const ungrouped = document.createElement('div');
+  ungrouped.className = 'ungrouped-section';
+  for (const p of projects) if (groupOf(p) === null) ungrouped.appendChild(makeCard(p));
+  if (groups.length > 0) {
+    // Shown only while a project is dragged: the way out of every group.
+    const hint = document.createElement('div');
+    hint.className = 'ungroup-drop';
+    hint.textContent = t('noGroup');
+    setupGroupDrop(hint, null);
+    ungrouped.appendChild(hint);
+  }
+  list.appendChild(ungrouped);
+
+  for (const g of groups) {
+    list.appendChild(makeGroupSection(g, projects.filter(p => groupOf(p) === g.id)));
+  }
+}
+
+function makeGroupSection(group: ProjectGroup, members: Project[]): HTMLElement {
+  const section = document.createElement('section');
+  section.className = 'group-section' + (group.collapsed ? ' collapsed' : '');
+  section.dataset.groupId = group.id;
+
+  const header = document.createElement('div');
+  header.className = 'group-header';
+  header.draggable = true;
+
+  const handle = document.createElement('div');
+  handle.className = 'drag-handle';
+  handle.appendChild(svgEl(GripVertical, 14));
+
+  const toggle = document.createElement('button');
+  toggle.className = 'group-toggle';
+  toggle.setAttribute('aria-expanded', String(!group.collapsed));
+  toggle.appendChild(svgEl(ChevronDown, 14));
+  toggle.addEventListener('click', () => {
+    group.collapsed = !group.collapsed;
+    section.classList.toggle('collapsed', group.collapsed);
+    toggle.setAttribute('aria-expanded', String(!group.collapsed));
+    void send({ type: 'UPDATE_GROUP', groupId: group.id, patch: { collapsed: group.collapsed } });
+  });
+
+  const nameInput = document.createElement('input');
+  nameInput.className = 'group-name-input';
+  nameInput.value = group.name;
+  nameInput.spellcheck = false;
+  nameInput.setAttribute('aria-label', t('groupName'));
+  nameInput.addEventListener('change', async () => {
+    const v = nameInput.value.trim();
+    if (!v) { nameInput.value = group.name; return; }
+    const res = await send<ProjectGroup>({ type: 'UPDATE_GROUP', groupId: group.id, patch: { name: v } });
+    if (res.ok) group.name = res.data.name;
+    nameInput.value = group.name;
+  });
+  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') nameInput.blur(); });
+
+  const count = document.createElement('span');
+  count.className = 'group-count';
+  count.textContent = String(members.length);
+
+  const delBtn = document.createElement('button');
+  delBtn.className = 'card-btn danger';
+  delBtn.title = t('deleteGroup');
+  delBtn.appendChild(svgEl(Trash2, 14));
+  delBtn.addEventListener('click', () => openDeleteDialog('group', group.id, group.name));
+
+  header.append(handle, toggle, nameInput, count, delBtn);
+  setupGroupDrop(header, group.id);
+  header.addEventListener('dragstart', e => {
+    // Dragging out of the name field selects text instead of moving the group.
+    if (e.target !== header) return;
+    drag = { kind: 'group', id: group.id };
+    section.classList.add('dragging');
+    document.body.classList.add('dragging-group');
+    e.dataTransfer!.effectAllowed = 'move';
+  });
+  header.addEventListener('dragend', () => {
+    section.classList.remove('dragging');
+    endDrag();
+  });
+
+  const body = document.createElement('div');
+  body.className = 'group-body';
+  for (const p of members) body.appendChild(makeCard(p));
+
+  section.append(header, body);
+  return section;
 }
 
 function makeCard(project: Project): HTMLElement {
@@ -451,13 +552,20 @@ function makeCard(project: Project): HTMLElement {
     await refresh();
   });
 
+  const groupBtn = document.createElement('button');
+  groupBtn.className = 'card-btn';
+  groupBtn.title = t('moveToGroup');
+  groupBtn.appendChild(svgEl(FolderInput, 14));
+  groupBtn.addEventListener('click', () => openGroupDialog(project.id));
+
   const delBtn = document.createElement('button');
   delBtn.className = 'card-btn danger';
   delBtn.title = t('deleteProject');
   delBtn.appendChild(svgEl(Trash2, 14));
-  delBtn.addEventListener('click', () => openDeleteDialog(project.id, project.name));
+  delBtn.addEventListener('click', () => openDeleteDialog('project', project.id, project.name));
 
   actions.appendChild(openBtn);
+  actions.appendChild(groupBtn);
   actions.appendChild(delBtn);
 
   card.appendChild(handle);
@@ -471,35 +579,154 @@ function makeCard(project: Project): HTMLElement {
 }
 
 // ── Drag & Drop ───────────────────────────────────────────
+function endDrag() {
+  drag = null;
+  document.body.classList.remove('dragging-project', 'dragging-group');
+  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+}
+
 function setupDrag(card: HTMLElement) {
   card.addEventListener('dragstart', e => {
-    dragSrcId = card.dataset.id!;
+    drag = { kind: 'project', id: card.dataset.id! };
     card.classList.add('dragging');
+    document.body.classList.add('dragging-project');
     e.dataTransfer!.effectAllowed = 'move';
   });
   card.addEventListener('dragend', () => {
     card.classList.remove('dragging');
-    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    endDrag();
   });
   card.addEventListener('dragover', e => {
+    if (drag?.kind !== 'project') return;
     e.preventDefault();
-    if (card.dataset.id !== dragSrcId) card.classList.add('drag-over');
+    if (card.dataset.id !== drag.id) card.classList.add('drag-over');
     e.dataTransfer!.dropEffect = 'move';
   });
   card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
   card.addEventListener('drop', async e => {
+    if (drag?.kind !== 'project') return;
     e.preventDefault();
     card.classList.remove('drag-over');
-    if (!dragSrcId || dragSrcId === card.dataset.id) return;
-    const si = projects.findIndex(p => p.id === dragSrcId);
+    const srcId = drag.id;
+    if (srcId === card.dataset.id) return;
+    const si = projects.findIndex(p => p.id === srcId);
     const di = projects.findIndex(p => p.id === card.dataset.id);
     if (si === -1 || di === -1) return;
+    const target = groupOf(projects[di]);
     const [moved] = projects.splice(si, 1);
+    const crossesGroups = groupOf(moved) !== target;
+    if (target === null) delete moved.groupId; else moved.groupId = target;
     projects.splice(di, 0, moved);
-    await send({ type: 'REORDER_PROJECTS', orderedIds: projects.map(p => p.id) });
+    await send({
+      type: 'REORDER_PROJECTS',
+      orderedIds: projects.map(p => p.id),
+      ...(crossesGroups && { moved: { projectId: moved.id, groupId: target } }),
+    });
     renderProjects();
   });
 }
+
+/**
+ * A drop target for a group: a project dropped on it moves to the end of the
+ * group (null: out of every group); a group header dropped on another header
+ * takes its place.
+ */
+function setupGroupDrop(el: HTMLElement, groupId: string | null) {
+  const accepts = () => drag !== null && (drag.kind === 'project' || groupId !== null);
+  el.addEventListener('dragover', e => {
+    if (!accepts()) return;
+    e.preventDefault();
+    if (!(drag!.kind === 'group' && drag!.id === groupId)) el.classList.add('drag-over');
+    e.dataTransfer!.dropEffect = 'move';
+  });
+  el.addEventListener('dragleave', e => {
+    if (!el.contains(e.relatedTarget as Node | null)) el.classList.remove('drag-over');
+  });
+  el.addEventListener('drop', async e => {
+    if (!accepts()) return;
+    e.preventDefault();
+    el.classList.remove('drag-over');
+    const src = drag!;
+    if (src.kind === 'project') {
+      await moveProjectToGroup(src.id, groupId);
+      return;
+    }
+    if (src.id === groupId) return;
+    const si = groups.findIndex(g => g.id === src.id);
+    const di = groups.findIndex(g => g.id === groupId);
+    if (si === -1 || di === -1) return;
+    const [moved] = groups.splice(si, 1);
+    groups.splice(di, 0, moved);
+    await send({ type: 'REORDER_GROUPS', orderedIds: groups.map(g => g.id) });
+    renderProjects();
+  });
+}
+
+async function moveProjectToGroup(projectId: string, groupId: string | null) {
+  await send({ type: 'SET_PROJECT_GROUP', projectId, groupId });
+  await refresh();
+}
+
+// ── Move-to-group dialog ──────────────────────────────────
+function openGroupDialog(projectId: string) {
+  const project = projects.find(p => p.id === projectId);
+  if (!project) return;
+  pendingGroupProjectId = projectId;
+  const current = groupOf(project);
+  const list = document.getElementById('group-dialog-list')!;
+  list.innerHTML = '';
+
+  const addItem = (iconNode: IconNode, label: string, active: boolean, onPick: () => void) => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'assign-item' + (active ? ' active' : '');
+    const iconWrap = document.createElement('span');
+    iconWrap.className = 'assign-item-icon';
+    iconWrap.appendChild(svgEl(iconNode, 15));
+    const name = document.createElement('span');
+    name.className = 'assign-item-name';
+    name.textContent = label;
+    item.append(iconWrap, name);
+    if (active) {
+      const check = svgEl(Check, 14);
+      check.classList.add('assign-item-check');
+      item.appendChild(check);
+    }
+    item.addEventListener('click', onPick);
+    list.appendChild(item);
+  };
+
+  const pick = async (groupId: string | null) => {
+    closeDialog('group-dialog');
+    if (groupId !== current) await moveProjectToGroup(projectId, groupId);
+  };
+
+  addItem(X, t('noGroup'), current === null, () => { void pick(null); });
+  for (const g of groups) addItem(Folder, g.name, current === g.id, () => { void pick(g.id); });
+  addItem(FolderPlus, t('newGroupEllipsis'), false, async () => {
+    closeDialog('group-dialog');
+    const group = await createGroupFromPrompt();
+    if (group && pendingGroupProjectId === projectId) await moveProjectToGroup(projectId, group.id);
+  });
+
+  document.getElementById('group-dialog')!.style.display = 'flex';
+}
+
+async function createGroupFromPrompt(): Promise<ProjectGroup | null> {
+  const name = await promptDialog(t('groupName'));
+  if (!name) return null;
+  const res = await send<ProjectGroup>({ type: 'CREATE_GROUP', name });
+  return res.ok ? res.data : null;
+}
+
+document.getElementById('group-dialog-close')!.addEventListener('click', () => closeDialog('group-dialog'));
+document.getElementById('group-dialog')!.addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeDialog('group-dialog');
+});
+
+document.getElementById('btn-new-group')!.addEventListener('click', async () => {
+  if (await createGroupFromPrompt()) await refresh();
+});
 
 // ── Icon dialog ───────────────────────────────────────────
 function openIconDialog(projectId: string) {
@@ -673,10 +900,12 @@ async function applyIcon(iconVal: string) {
 }
 
 // ── Delete dialog ─────────────────────────────────────────
-function openDeleteDialog(projectId: string, name: string) {
-  pendingDeleteId = projectId;
+function openDeleteDialog(kind: 'project' | 'group', id: string, name: string) {
+  pendingDelete = { kind, id };
+  document.getElementById('delete-title')!.textContent =
+    kind === 'project' ? t('deleteProjectQuestion') : t('deleteGroupQuestion');
   document.getElementById('delete-message')!.textContent =
-    t('deleteMessage', name);
+    kind === 'project' ? t('deleteMessage', name) : t('deleteGroupMessage', name);
   document.getElementById('delete-dialog')!.style.display = 'flex';
 }
 
@@ -685,8 +914,12 @@ document.getElementById('delete-dialog')!.addEventListener('click', e => {
 });
 document.getElementById('delete-cancel')!.addEventListener('click', () => closeDialog('delete-dialog'));
 document.getElementById('delete-confirm')!.addEventListener('click', async () => {
-  if (!pendingDeleteId) return;
-  await send({ type: 'DELETE_PROJECT', projectId: pendingDeleteId });
+  if (!pendingDelete) return;
+  const { kind, id } = pendingDelete;
+  pendingDelete = null;
+  await send(kind === 'project'
+    ? { type: 'DELETE_PROJECT', projectId: id }
+    : { type: 'DELETE_GROUP', groupId: id });
   closeDialog('delete-dialog');
   await refresh();
 });
@@ -777,9 +1010,9 @@ let refreshWhenIdle = false;
 function scheduleStorageRefresh() {
   clearTimeout(storageRefreshTimer);
   storageRefreshTimer = setTimeout(() => {
-    const editing = document.activeElement?.classList.contains('card-name-input');
+    const editing = isNameInput(document.activeElement);
     // Re-rendering mid-drag would pull the dragged card out from under the cursor.
-    const dragging = document.querySelector('.project-card.dragging') !== null;
+    const dragging = drag !== null;
     if (editing || dragging) {
       refreshWhenIdle = true;
       return;
@@ -792,6 +1025,10 @@ chrome.storage.onChanged.addListener((_changes, area) => {
   if (area === 'local' || area === 'session') scheduleStorageRefresh();
 });
 
+function isNameInput(el: Element | null): boolean {
+  return !!el && (el.classList.contains('card-name-input') || el.classList.contains('group-name-input'));
+}
+
 function flushDeferredRefresh() {
   if (!refreshWhenIdle) return;
   refreshWhenIdle = false;
@@ -799,7 +1036,7 @@ function flushDeferredRefresh() {
   setTimeout(scheduleStorageRefresh, 0);
 }
 document.addEventListener('focusout', e => {
-  if ((e.target as HTMLElement | null)?.classList.contains('card-name-input')) flushDeferredRefresh();
+  if (isNameInput(e.target as Element | null)) flushDeferredRefresh();
 });
 document.addEventListener('dragend', flushDeferredRefresh);
 

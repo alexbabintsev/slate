@@ -30,6 +30,16 @@ export type Project = {
   /** Device that made the last write (see IStorage.getDeviceId); set by storage. */
   updatedBy?: string;
   sortOrder: number;
+  /** ProjectGroup.id; absent, or naming a group that no longer exists, means ungrouped. */
+  groupId?: string;
+};
+
+/** A named, collapsible section of the project list. */
+export type ProjectGroup = {
+  id: string;
+  name: string;
+  collapsed: boolean;
+  sortOrder: number;
 };
 
 /** Left behind when a project is deleted, so a future sync can propagate the deletion. */
@@ -49,6 +59,8 @@ export type AppSettings = {
 export type ProjectStore = {
   projects: Record<string, Project>;
   settings: AppSettings;
+  /** Absent in exports made before groups existed; storage leaves groups alone then. */
+  groups?: Record<string, ProjectGroup>;
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -108,4 +120,13 @@ export function createProject(name: string, icon = ''): Project {
     updatedAt: Date.now(),
     sortOrder: Date.now(),
   };
+}
+
+export function createGroup(name: string): ProjectGroup {
+  return { id: crypto.randomUUID(), name, collapsed: false, sortOrder: Date.now() };
+}
+
+/** Groups in display order. */
+export function sortedGroups(groups: Record<string, ProjectGroup> | undefined): ProjectGroup[] {
+  return Object.values(groups ?? {}).sort((a, b) => a.sortOrder - b.sortOrder);
 }

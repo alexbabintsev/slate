@@ -307,5 +307,35 @@
   },
   "welcomeFeedbackLink": {
     "message": "Informar de un error o sugerir una función"
+  },
+  "newGroup": {
+    "message": "Nuevo grupo"
+  },
+  "groupName": {
+    "message": "Nombre del grupo"
+  },
+  "deleteGroup": {
+    "message": "Eliminar grupo"
+  },
+  "deleteGroupQuestion": {
+    "message": "¿Eliminar grupo?"
+  },
+  "deleteGroupMessage": {
+    "message": "Se eliminará «$NAME$». Sus proyectos se conservan, solo que sin grupo.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "moveToGroup": {
+    "message": "Mover a un grupo"
+  },
+  "noGroup": {
+    "message": "Sin grupo"
+  },
+  "newGroupEllipsis": {
+    "message": "Nuevo grupo…"
   }
 }

@@ -403,6 +403,105 @@ body {
 .card-btn:hover { background: var(--bg-active); color: var(--text-primary); }
 .card-btn.danger:hover { background: var(--danger-bg); color: var(--danger); }
 
+/* ── Project groups ──────────────────────────── */
+.group-section { margin-top: 10px; }
+.group-section.dragging { opacity: 0.4; }
+
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px 4px 4px;
+  border-radius: var(--radius-sm);
+  transition: background 0.12s;
+}
+
+.group-header:hover { background: var(--bg-hover); }
+.group-header.drag-over { background: var(--accent-bg); }
+
+.group-header .card-btn {
+  opacity: 0;
+  transition: opacity 0.12s, background 0.12s, color 0.12s;
+}
+
+.group-header:hover .card-btn,
+.group-header .card-btn:focus-visible { opacity: 1; }
+
+.group-toggle {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.group-toggle:hover { background: var(--bg-active); color: var(--text-primary); }
+.group-toggle svg { transition: transform 0.15s; }
+.group-section.collapsed .group-toggle svg { transform: rotate(-90deg); }
+.group-section.collapsed .group-body { display: none; }
+
+.group-name-input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  cursor: text;
+}
+
+.group-name-input:focus {
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 12px;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  padding: 2px 5px;
+  margin: -2px 0;
+  outline: 2px solid var(--accent);
+}
+
+.group-count {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  padding: 0 4px;
+}
+
+.group-body { padding-left: 10px; }
+
+/* Drop target that takes a project out of its group; only shown mid-drag. */
+.ungroup-drop {
+  display: none;
+  margin: 4px 0;
+  padding: 8px;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+  font-size: 12px;
+  text-align: center;
+}
+
+body.dragging-project .ungroup-drop { display: block; }
+.ungroup-drop.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
 /* ── Dialog overlay (centered) ───────────────── */
 .dialog-overlay {
   position: fixed;
@@ -718,11 +817,20 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
   padding: 8px 10px;
+  border: none;
   border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
   cursor: pointer;
   transition: background 0.12s;
 }
+
+.assign-item.active .assign-item-name { color: var(--accent); }
+.assign-item-check { margin-left: auto; color: var(--accent); flex-shrink: 0; }
 
 .assign-item:hover { background: var(--bg-hover); }
 

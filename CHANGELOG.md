@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- Project groups. Gather projects into named groups in the side panel: create
+  one with the folder button in the header, then drag projects onto it or pick
+  **Move to group** on a project. Groups can be renamed, reordered by dragging
+  their headers, collapsed (in the panel and the popup) and deleted - deleting a
+  group keeps its projects, just without a group. Groups are included in
+  export and import; files exported by older versions still import.
+
 ## [1.1.2] - 2026-11-06
 
 ### Changed

@@ -38,6 +38,7 @@ Organize your work as projects in Chrome - each project gets its own window with
 - **Survives restarts and crashes.** When Chrome reopens windows itself - on restart, or after a crash once you click **Restore** - Slate recognizes each project's window by its tabs and reattaches it instead of opening a duplicate.
 - **Toolbar badge** shows the current project's initials in its color, per window.
 - **Side panel manager** for renaming, reordering (drag & drop), changing icons/colors, and deleting projects. Deleting a project unlinks its window without closing it.
+- **Project groups.** Gather projects into named, collapsible groups - drag a project onto a group or use **Move to group**. Deleting a group keeps its projects.
 - **Icon picker** with 335 curated Lucide icons + image upload (PNG/JPG/SVG/WebP up to 512 KB).
 - **Import / export** all projects as JSON. Imported files are validated: only `http`, `https` and `file` tab URLs are accepted, and projects with the same id replace existing ones.
 - **Optional CLI** to open/close projects from your shell.
@@ -74,6 +75,7 @@ The built bundles are not committed, so run `npm run build` again after pulling 
 - **Rename, recolor, change icon** - in the side panel. Edits touch only those fields, never the saved tabs.
 - **Manage projects** - click the gear icon in the popup to open the side panel.
 - **Reorder** - drag projects in the side panel.
+- **Group projects** - create a group with the folder button in the side panel header, then drag projects onto it or click **Move to group** on a project. Drag group headers to reorder groups; click the arrow to collapse one (also in the popup).
 - **Import/export** - buttons in the side panel header.
 
 ## CLI (optional)
